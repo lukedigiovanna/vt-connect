@@ -25,3 +25,4 @@ frontend/yarn-error.log*
 
 backend/__pycache__
 backend/env
+backend/.env
