@@ -10,7 +10,7 @@ It is recommended to run this server within a python virtual environment to avoi
 
 1. CD into this directory, `backend`
 2. Create a virtual python environment using `$ python3 -m venv env`
-3. Activate the environment using `$ source project_env/bin/activate`
+3. Activate the environment using `$ source env/bin/activate`
 4. Install dependencies using `$ pip3 install -r requirements.txt`
 5. Run as `$ python3 server.py`
 

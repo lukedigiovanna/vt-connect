@@ -1,5 +1,5 @@
 import atexit
-from flask import Flask
+from flask import Flask, send_from_directory
 import psycopg2
 from dotenv import load_dotenv
 import os
@@ -22,11 +22,11 @@ conn = psycopg2.connect(
 cursor = conn.cursor()
 
 print("setting up flask app")
-app = Flask(__name__)
+app = Flask(__name__, static_folder="static")
 
 @app.route('/')
 def hello():
-    return 'Hello, World!'
+    return send_from_directory(app.static_folder, "index.html")
 
 # Safely close connections/resources when the server is shutdown for any reason
 def shutdown():
