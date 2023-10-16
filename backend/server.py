@@ -47,7 +47,11 @@ Will return an error status if any fields are not given
 """
 @app.route('/api/signup', methods=["POST"])
 def signup():
-    return 'NOT IMPLEMENTED'
+    print(request.data)
+
+    abort(501)
+
+    # return 'NOT IMPLEMENTED'
 
 """
 Performs authentication to return a JWT that the client
@@ -64,6 +68,15 @@ Gets a JSON array of all registered users
 def users():
     # get up to 300 users
     cursor.execute('SELECT * FROM user_account LIMIT 300 OFFSET 0')
+    result = cursor.fetchall()
+    return result
+
+"""
+Gets a JSON array of the next events sorted by start time in decreasing order
+"""
+@app.route('/api/events', methods=["GET"])
+def events():
+    cursor.execute('SELECT * FROM event ORDER BY start_time DESC LIMIT 300 OFFSET 0')
     result = cursor.fetchall()
     return result
 
