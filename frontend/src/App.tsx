@@ -6,8 +6,8 @@ import HomePage from "./pages/HomePage";
 function App() {
   return (
     <div>
-      <h1 className="text-blue-500">
-        VT Connect
+      <h1 className="flex justify-center items-center font-bold text-3xl text-gray-800 my-5">
+        <img src="vt-logo.png" className="w-14" /> Connect
       </h1>
       <Routes>
         <Route path="/" element={<HomePage />}/>
