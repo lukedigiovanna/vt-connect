@@ -1,9 +1,12 @@
+import { Background } from "../components/Background";
 import { SignUpForm } from "../components/SignUpForm";
 
 export const RegisterPage = () => {
     return (
-        <div>
+        <>
+            <Background />
             <SignUpForm />
-        </div>
+        </>
+        
     );
 };

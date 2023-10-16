@@ -2,6 +2,7 @@ import React, { Dispatch, useState } from "react";
 import { majors } from "../constants/data";
 import { FormRow } from "./FormRow";
 import { post } from "../constants/api";
+import { useNavigate } from "react-router-dom";
 
 const updateState = (
     setState: Dispatch<React.SetStateAction<string>>,
@@ -45,6 +46,8 @@ export const SignUpForm = () => {
         }
     };
 
+    const navigate = useNavigate();
+
     return (
         <form className="form">
             <h1 className="font-bold text-2xl text-center">Sign Up</h1>
@@ -64,7 +67,7 @@ export const SignUpForm = () => {
                     onChange={updateState(setPassword)}
                 />
             </FormRow>
-            <FormRow title="Confirm">
+            <FormRow title="Confirm Password">
                 <input
                     type="password"
                     placeholder="confirm password"
@@ -118,13 +121,15 @@ export const SignUpForm = () => {
 
             <p className="text-sm text-center text-gray-800">
                 Already have an account?{" "}
-                <span className="font-bold cursor-pointer hover:text-red-800 transition">
+                <span className="font-bold cursor-pointer hover:text-red-800 transition" onClick={() => {
+                    navigate("/login")
+                }}>
                     Log in
                 </span>
             </p>
 
             <button
-                className="block mx-auto text-gray-100 w-64 bg-zinc-900 hover:bg-zinc-700 active:bg-red-800 py-2 mt-10 transition"
+                className="form-submit-button"
                 onClick={onSubmit}
             >
                 Submit
