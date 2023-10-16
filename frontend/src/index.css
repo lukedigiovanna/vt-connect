@@ -1,11 +1,26 @@
-@tailwind base; 
-@tailwind components; 
-@tailwind utilities; 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 .form-input {
-    @apply border-b-2 outline-none focus:border-red-300 transition;
+  @apply border-b-2 outline-none focus:border-red-300 transition autofill:bg-blue-700;
 }
 
 .form {
-    @apply block max-w-md mx-auto border-slate-700 border shadow-2xl p-3 rounded;
+  @apply block max-w-md mx-auto border-slate-700 border shadow-2xl p-3 rounded;
+}
+
+@layer components {
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  textarea:-webkit-autofill,
+  textarea:-webkit-autofill:hover,
+  textarea:-webkit-autofill:focus,
+  select:-webkit-autofill,
+  select:-webkit-autofill:hover,
+  select:-webkit-autofill:focus {
+    background-color: #fff !important; /* bg-gray-100 in Tailwind */
+    -webkit-box-shadow: 0 0 0 30px #fff inset !important;
+  }
 }

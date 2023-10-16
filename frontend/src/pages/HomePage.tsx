@@ -1,21 +1,23 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import { get } from "../constants/api";
 
-export default () => {
-    const navigate = useNavigate();
+export const HomePage = () => {
+  // const navigate = useNavigate();
 
-    const events = useState<any[]>([]);
+  const [events, setEvents] = useState<unknown[]>([]);
 
-    useEffect(() => {
-        const events = get('/events').then((value) => {
-            console.log(value);
-        });
-    }, []);
+  useEffect(() => {
+    get("/events").then((value) => {
+      console.log(value);
+    });
+  }, []);
 
-    return (
-        <>  
-
-        </>
-    )
-}
+  return (
+    <div>
+      {events.map((value: any, index: number) => {
+        return <p key={index}>{value}</p>;
+      })}
+    </div>
+  );
+};

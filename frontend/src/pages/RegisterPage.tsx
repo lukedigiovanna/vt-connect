@@ -1,9 +1,9 @@
-import { SignUpForm } from "../components/SignUpForm"
+import { SignUpForm } from "../components/SignUpForm";
 
-export default () => {
-    return (
-        <div>
-            <SignUpForm />
-        </div>
-    )
-}
+export const RegisterPage = () => {
+  return (
+    <div>
+      <SignUpForm />
+    </div>
+  );
+};
