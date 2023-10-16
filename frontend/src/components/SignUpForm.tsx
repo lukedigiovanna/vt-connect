@@ -4,7 +4,7 @@ import { FormRow } from "./FormRow";
 
 export const SignUpForm = () => {
     return (
-        <form className="flex ">
+        <form className="block max-w-sm mx-auto">
             <FormRow>
                 <label>
                     VT PID: 

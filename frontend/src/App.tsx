@@ -1,7 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import React from 'react';
 import RegisterPage from "./pages/RegisterPage";
-import RootPage from "./pages/RootPage";
+import HomePage from "./pages/HomePage";
 
 function App() {
   return (
@@ -10,7 +10,7 @@ function App() {
         VT Connect
       </h1>
       <Routes>
-        <Route path="/" element={<RootPage />}/>
+        <Route path="/" element={<HomePage />}/>
         <Route path="/register" element={<RegisterPage />} />
       </Routes>
     </div>
