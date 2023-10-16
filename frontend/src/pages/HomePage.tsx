@@ -3,21 +3,21 @@ import { useEffect, useState } from "react";
 import { get } from "../constants/api";
 
 export const HomePage = () => {
-  // const navigate = useNavigate();
+    // const navigate = useNavigate();
 
-  const [events, setEvents] = useState<unknown[]>([]);
+    const [events, setEvents] = useState<unknown[]>([]);
 
-  useEffect(() => {
-    get("/events").then((value) => {
-      console.log(value);
-    });
-  }, []);
+    useEffect(() => {
+        get("/events").then((value) => {
+            console.log(value);
+        });
+    }, []);
 
-  return (
-    <div>
-      {events.map((value: any, index: number) => {
-        return <p key={index}>{value}</p>;
-      })}
-    </div>
-  );
+    return (
+        <div>
+            {events.map((value: any, index: number) => {
+                return <p key={index}>{value}</p>;
+            })}
+        </div>
+    );
 };
