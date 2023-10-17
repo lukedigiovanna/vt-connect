@@ -1,9 +1,14 @@
-export function debounce<T extends Function>(cb: T, wait = 400) {
-    let h: any = 0;
-    let callable = (...args: any) => {
-        clearTimeout(h);
-        h = setTimeout(() => cb(...args), wait);
-    };
-    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-    return <T>(<any>callable);
-}
+export const debounce = <F extends (...args: any[]) => any>(
+    func: F,
+    waitFor: number,
+  ) => {
+    let timeout: NodeJS.Timeout | null = null;
+  
+    const debounced = (...args: any[]) => {
+      if (timeout)
+        clearTimeout(timeout)
+      timeout = setTimeout(() => func(...args), waitFor)
+    }
+  
+    return debounced as unknown as (...args: Parameters<F>) => ReturnType<F>
+  }

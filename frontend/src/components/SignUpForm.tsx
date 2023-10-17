@@ -24,7 +24,6 @@ export const SignUpForm = () => {
     ) => {
         return (e: React.ChangeEvent<any>) => {
             setState(e.target.value as string);
-            setErrorMessage(null);
             callback(e.target.value);
         };
     };
@@ -42,14 +41,7 @@ export const SignUpForm = () => {
         }
 
         return true;
-    }, [
-        pid,
-        firstName,
-        lastName,
-        password,
-        validPassword,
-        mismatchedPasswords
-    ]);
+    }, [pid, firstName, lastName, password, validPassword, mismatchedPasswords]);
 
     const validatePasswordDebounce = debounce((content: string) => {
         const regex =
@@ -97,7 +89,7 @@ export const SignUpForm = () => {
                 />
             </FormRow>
             {!validPassword && password.length > 0 && (
-                <p className="text-red-500 font-semibold text-sm">
+                <span className="text-red-500 font-semibold text-sm">
                     Password must contain:
                     <ul>
                         <li>Uppercase letter</li>
@@ -105,7 +97,7 @@ export const SignUpForm = () => {
                         <li>Special character</li>
                         <li>Is at least 8 characters long</li>
                     </ul>
-                </p>
+                </span>
             )}
             <FormRow title="Confirm Password" required>
                 <input
@@ -113,7 +105,7 @@ export const SignUpForm = () => {
                     placeholder="confirm password"
                     className="form-input w-full"
                     onChange={(e) => {
-                        const content = e.target.value;
+                        const content = e.target.value
                         if (content === password) {
                             setMismatchedPasswords(false);
                         }

@@ -11,7 +11,7 @@
 }
 
 .form-submit-button {
-    @apply block mx-auto text-gray-100 w-64 bg-zinc-900 hover:bg-zinc-700 disabled:opacity-50 active:bg-red-800 py-2 mt-10 transition;
+    @apply block mx-auto text-gray-100 w-64 bg-zinc-900 hover:bg-zinc-700 disabled:opacity-50 active:bg-red-800 py-2 mt-10 transition cursor-pointer disabled:pointer-events-none;
 }
 
 .background {
