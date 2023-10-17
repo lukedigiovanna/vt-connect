@@ -3,6 +3,7 @@ from flask import Flask, send_from_directory, abort, request
 import psycopg2
 from dotenv import load_dotenv
 import os
+import json
 
 load_dotenv()
 
@@ -40,6 +41,21 @@ def root():
     return send_from_directory(app.static_folder, "index.html")
 
 """
+Checks if a user with the given PID already exists.
+"""
+def user_exists(pid):
+    cursor.execute(f"SELECT * FROM user_account WHERE pid='{pid}'")
+    result = cursor.fetchall()
+    return len(result) > 0
+
+def get_optional_attrib(body, name):
+    field = body[name]
+    if field is None or len(field) == 0:
+        return "NULL"
+    else:
+        return f"'{body[name]}'"
+
+"""
 Takes all user information necessary to sign the user up or uses
 default values when necessary.
 
@@ -47,11 +63,26 @@ Will return an error status if any fields are not given
 """
 @app.route('/api/signup', methods=["POST"])
 def signup():
-    print(request.data)
+    body = json.loads(request.data.decode())['body']
 
-    abort(501)
+    necessary_fields = ['pid', 'password', 'firstName', 'lastName']
 
-    # return 'NOT IMPLEMENTED'
+    if len(list(filter(lambda f: f in body and len(body[f]) > 0, necessary_fields))) == 0:
+        return 'Missing a required request parameter', 400
+
+    pid, password, firstName, lastName = body['pid'], body['password'], body['firstName'], body['lastName']
+
+    if user_exists(pid):
+        return 'A user with that pid already exists', 400
+    
+    # check for optional fields: major, bio
+    major, bio = get_optional_attrib(body, 'major'), get_optional_attrib(body, 'bio')
+
+    cursor.execute("""INSERT INTO user_account (pid, email, first_name, last_name, major, bio, is_admin)
+                      VALUES (%s, %s, %s, %s, %s, %s, false)""",
+                      (pid, f"{pid}@vt.edu", firstName, lastName, major, bio))
+
+    return 'Made user', 200
 
 """
 Performs authentication to return a JWT that the client
