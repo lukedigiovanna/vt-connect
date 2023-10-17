@@ -1,5 +1,5 @@
-import { Background } from "../components/Background"
-import { LoginForm } from "../components/LoginForm"
+import { Background } from "../components/Background";
+import { LoginForm } from "../components/LoginForm";
 
 export const LoginPage = () => {
     return (
@@ -7,5 +7,5 @@ export const LoginPage = () => {
             <Background />
             <LoginForm />
         </>
-    )
-}
+    );
+};

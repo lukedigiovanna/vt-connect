@@ -11,11 +11,11 @@
 }
 
 .form-submit-button {
-    @apply block mx-auto text-gray-100 w-64 bg-zinc-900 hover:bg-zinc-700 active:bg-red-800 py-2 mt-10 transition;
+    @apply block mx-auto text-gray-100 w-64 bg-zinc-900 hover:bg-zinc-700 disabled:opacity-50 active:bg-red-800 py-2 mt-10 transition;
 }
 
 .background {
-    background-image: url('./assets/background.jpg');
+    background-image: url("./assets/background.jpg");
     background-size: cover;
     object-fit: cover;
     z-index: -1;
@@ -24,7 +24,7 @@
     width: 100%;
     height: 100%;
     position: absolute;
-    filter: blur(4px)
+    filter: blur(4px);
 }
 
 @layer components {

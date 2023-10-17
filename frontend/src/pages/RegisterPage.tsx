@@ -7,6 +7,5 @@ export const RegisterPage = () => {
             <Background />
             <SignUpForm />
         </>
-        
     );
 };

@@ -1,49 +1,76 @@
-import React, { Dispatch, useState } from "react";
+import React, { Dispatch, useState, useMemo } from "react";
 import { majors } from "../constants/data";
 import { FormRow } from "./FormRow";
 import { post } from "../constants/api";
 import { useNavigate } from "react-router-dom";
-
-const updateState = (
-    setState: Dispatch<React.SetStateAction<string>>,
-    callback: (content: string) => void = () => {}
-) => {
-    return (e: React.ChangeEvent<any>) => {
-        setState(e.target.value as string);
-        callback(e.target.value);
-    };
-};
+import { debounce } from "../constants/utils";
 
 export const SignUpForm = () => {
     const [pid, setPID] = useState("");
     const [password, setPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] = useState("");
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
     const [major, setMajor] = useState("");
     const [bio, setBio] = useState("");
 
-    const validate: () => boolean = () => {
-        const vals = [pid, firstName, lastName, major, bio];
-        for (const val in vals) {
+    const [validPassword, setValidPassword] = useState<boolean>(true);
+    const [mismatchedPasswords, setMismatchedPasswords] =
+        useState<boolean>(false);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+    const updateState = (
+        setState: Dispatch<React.SetStateAction<string>>,
+        callback: (content: string) => void = () => {}
+    ) => {
+        return (e: React.ChangeEvent<any>) => {
+            setState(e.target.value as string);
+            setErrorMessage(null);
+            callback(e.target.value);
+        };
+    };
+
+    const valid = useMemo(() => {
+        const vals = [pid, password, firstName, lastName];
+        for (const val of vals) {
             if (val.length === 0) {
                 return false;
             }
         }
-        return true;
-    };
 
-    const onSubmit = () => {
-        if (validate()) {
-            post("/signup", {
-                pid,
-                password,
-                firstName,
-                lastName,
-                major,
-                bio
-            });
+        if (!validPassword || mismatchedPasswords) {
+            return false;
         }
+
+        return true;
+    }, [
+        pid,
+        firstName,
+        lastName,
+        password,
+        validPassword,
+        mismatchedPasswords
+    ]);
+
+    const validatePasswordDebounce = debounce((content: string) => {
+        const regex =
+            /^(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
+        setValidPassword(content.length === 0 || regex.test(content));
+    }, 1000);
+
+    const comparePasswordDebounce = debounce((content: string) => {
+        setMismatchedPasswords(content.length > 0 && content !== password);
+    }, 500);
+
+    const onSubmit = (e: any) => {
+        e.preventDefault();
+        post("/signup", {
+            pid,
+            password,
+            firstName,
+            lastName,
+            major,
+            bio
+        });
     };
 
     const navigate = useNavigate();
@@ -51,7 +78,7 @@ export const SignUpForm = () => {
     return (
         <form className="form">
             <h1 className="font-bold text-2xl text-center">Sign Up</h1>
-            <FormRow title="VT PID">
+            <FormRow title="VT PID" required>
                 <input
                     type="text"
                     placeholder="pid"
@@ -59,23 +86,47 @@ export const SignUpForm = () => {
                     onChange={updateState(setPID)}
                 />
             </FormRow>
-            <FormRow title="Password">
+            <FormRow title="Password" required>
                 <input
                     type="password"
                     placeholder="password"
                     className="form-input w-full"
-                    onChange={updateState(setPassword)}
+                    onChange={updateState(setPassword, (content: string) => {
+                        validatePasswordDebounce(content);
+                    })}
                 />
             </FormRow>
-            <FormRow title="Confirm Password">
+            {!validPassword && password.length > 0 && (
+                <p className="text-red-500 font-semibold text-sm">
+                    Password must contain:
+                    <ul>
+                        <li>Uppercase letter</li>
+                        <li>Lowercase letter</li>
+                        <li>Special character</li>
+                        <li>Is at least 8 characters long</li>
+                    </ul>
+                </p>
+            )}
+            <FormRow title="Confirm Password" required>
                 <input
                     type="password"
                     placeholder="confirm password"
                     className="form-input w-full"
-                    onChange={updateState(setConfirmPassword)}
+                    onChange={(e) => {
+                        const content = e.target.value;
+                        if (content === password) {
+                            setMismatchedPasswords(false);
+                        }
+                        comparePasswordDebounce(content);
+                    }}
                 />
             </FormRow>
-            <FormRow title="Name">
+            {mismatchedPasswords && (
+                <p className="text-red-500 font-semibold text-sm">
+                    Passwords do not match
+                </p>
+            )}
+            <FormRow title="Name" required>
                 <input
                     type="text"
                     placeholder="first name"
@@ -121,16 +172,26 @@ export const SignUpForm = () => {
 
             <p className="text-sm text-center text-gray-800">
                 Already have an account?{" "}
-                <span className="font-bold cursor-pointer hover:text-red-800 transition" onClick={() => {
-                    navigate("/login")
-                }}>
+                <span
+                    className="font-bold cursor-pointer hover:text-red-800 transition"
+                    onClick={() => {
+                        navigate("/login");
+                    }}
+                >
                     Log in
                 </span>
             </p>
 
+            {errorMessage && (
+                <p className="text-center text-red-500 text-sm font-semibold mt-6">
+                    * {errorMessage} *
+                </p>
+            )}
+
             <button
                 className="form-submit-button"
                 onClick={onSubmit}
+                disabled={!valid}
             >
                 Submit
             </button>

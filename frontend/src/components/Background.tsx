@@ -1,5 +1,3 @@
 export const Background = () => {
-    return (
-        <div className="background" />
-    )
-}
+    return <div className="background" />;
+};
