@@ -4,6 +4,7 @@ import psycopg2
 from dotenv import load_dotenv
 import os
 import json
+import bcrypt
 
 load_dotenv()
 
@@ -51,9 +52,9 @@ def user_exists(pid):
 def get_optional_attrib(body, name):
     field = body[name]
     if field is None or len(field) == 0:
-        return "NULL"
+        return None
     else:
-        return f"'{body[name]}'"
+        return body[name]
 
 """
 Takes all user information necessary to sign the user up or uses
@@ -78,9 +79,11 @@ def signup():
     # check for optional fields: major, bio
     major, bio = get_optional_attrib(body, 'major'), get_optional_attrib(body, 'bio')
 
-    cursor.execute("""INSERT INTO user_account (pid, email, first_name, last_name, major, bio, is_admin)
-                      VALUES (%s, %s, %s, %s, %s, %s, false)""",
-                      (pid, f"{pid}@vt.edu", firstName, lastName, major, bio))
+    hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+
+    cursor.execute("""INSERT INTO user_account (pid, hash, email, first_name, last_name, major, bio, is_admin)
+                      VALUES (%s, %s, %s, %s, %s, %s, %s, false)""",
+                      (pid, hash, f"{pid}@vt.edu", firstName, lastName, major, bio))
 
     return 'Made user', 200
 
