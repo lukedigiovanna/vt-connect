@@ -1,5 +1,6 @@
 import atexit
 from flask import Flask, send_from_directory, abort, request
+from flask_cors import CORS
 import psycopg2
 from dotenv import load_dotenv
 import os
@@ -36,12 +37,32 @@ print("Successfully connected to database!")
 print("Setting up flask app...")
 app = Flask(__name__, static_folder="static")
 
+# Enable CORS to allow requests from any origin
+CORS(app)
+
 """
 Returns the public HTML of the page
 """
 @app.route('/')
 def root():
     return send_from_directory(app.static_folder, "index.html")
+
+def snake_case_to_camel_case(string):
+    tokens = string.split('_')
+    tokens = [tokens[0]] + list(map(lambda s: s[0].upper() + s[1:], tokens[1:]))
+    return ''.join(tokens)
+
+"""
+Returns a dictionary/JSON representation of the query results, which
+is useful for returning and processing the results on the frontend.
+"""
+def get_formatted_query_results():
+    results = cursor.fetchall()
+    column_names = [desc[0] for desc in cursor.description]
+    def format(result):
+        return {snake_case_to_camel_case(column_names[i]): result[i] for i in range(len(column_names))}
+    formatted_results = list(map(format, results))
+    return formatted_results
 
 """
 Checks if a user with the given PID already exists.
@@ -86,6 +107,7 @@ def signup():
     cursor.execute("""INSERT INTO user_account (pid, hash, email, first_name, last_name, major, bio, is_admin)
                       VALUES (%s, %s, %s, %s, %s, %s, %s, false)""",
                       (pid, hash, f"{pid}@vt.edu", firstName, lastName, major, bio))
+    conn.commit()
 
     return 'Made user', 200
 
@@ -104,17 +126,15 @@ Gets a JSON array of all registered users
 def users():
     # get up to 300 users
     cursor.execute('SELECT * FROM user_account LIMIT 300 OFFSET 0')
-    result = cursor.fetchall()
-    return result
+    return get_formatted_query_results()
 
 """
 Gets a JSON array of the next events sorted by start time in decreasing order
 """
 @app.route('/api/events', methods=["GET"])
 def events():
-    cursor.execute('SELECT * FROM event ORDER BY start_time DESC LIMIT 300 OFFSET 0')
-    result = cursor.fetchall()
-    return result
+    cursor.execute('SELECT * FROM event ORDER BY start_time LIMIT 300 OFFSET 0')
+    return get_formatted_query_results()
 
 
 # Safely close connections/resources when the server is shutdown for any reason

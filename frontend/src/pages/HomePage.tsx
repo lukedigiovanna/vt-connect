@@ -1,22 +1,25 @@
 import { useEffect, useState } from "react";
 // import { useNavigate } from "react-router-dom";
 import { get } from "../constants/api";
+import { EventCard } from "../components/EventCard";
+import { Event } from "../constants/models";
 
 export const HomePage = () => {
     // const navigate = useNavigate();
 
-    const [events, setEvents] = useState<unknown[]>([]);
+    const [events, setEvents] = useState<Event[]>([]);
 
     useEffect(() => {
-        get("/events").then((value) => {
-            console.log(value);
-        });
+        (async () => {
+            const result = await get("/events");
+            setEvents(result.data);
+        })();
     }, []);
 
     return (
         <div>
-            {events.map((value: any, index: number) => {
-                return <p key={index}>{value}</p>;
+            {events.map((event: Event, index: number) => {
+                return <EventCard key={index} event={event} />
             })}
         </div>
     );

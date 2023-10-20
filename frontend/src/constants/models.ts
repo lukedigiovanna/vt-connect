@@ -6,5 +6,11 @@ export interface UserAccount {
 
 export interface Event {
     id: number;
-    name: string;
+    title: string;
+    description: string;
+    startTime: Date;
+    endTime: Date | null;
+    locationId: number | null; // will later want to do a JOIN on event and location when retrieving Event data
+    hostPid: string; // ditto
+    imageUrl: string;
 }

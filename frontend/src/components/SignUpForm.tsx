@@ -4,7 +4,7 @@ import { FormRow } from "./FormRow";
 import { post } from "../constants/api";
 import { useNavigate } from "react-router-dom";
 import { debounce } from "../constants/utils";
-import { AxiosResponse } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 
 export const SignUpForm = () => {
     const [pid, setPID] = useState("");
@@ -63,10 +63,14 @@ export const SignUpForm = () => {
             lastName,
             major,
             bio
-        }).then((value: AxiosResponse) => {
-            console.log('success', value);
-        }).catch((reason: any) => {
-            console.log('error', reason);
+        }).then((_: AxiosResponse) => {
+            navigate("/");
+        }).catch((error: AxiosError) => {
+            let message = "Something went wrong";
+            if (error.response) {
+                message = error.response.data as string;
+            }
+            setErrorMessage(message);
         });
     };
 
@@ -181,7 +185,7 @@ export const SignUpForm = () => {
 
             {errorMessage && (
                 <p className="text-center text-red-500 text-sm font-semibold mt-6">
-                    * {errorMessage} *
+                    {errorMessage}
                 </p>
             )}
 
