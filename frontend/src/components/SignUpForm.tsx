@@ -4,6 +4,7 @@ import { FormRow } from "./FormRow";
 import { post } from "../constants/api";
 import { useNavigate } from "react-router-dom";
 import { debounce } from "../constants/utils";
+import { AxiosResponse } from "axios";
 
 export const SignUpForm = () => {
     const [pid, setPID] = useState("");
@@ -62,6 +63,10 @@ export const SignUpForm = () => {
             lastName,
             major,
             bio
+        }).then((value: AxiosResponse) => {
+            console.log('success', value);
+        }).catch((reason: any) => {
+            console.log('error', reason);
         });
     };
 
