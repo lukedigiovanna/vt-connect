@@ -7,11 +7,11 @@ import json
 
 load_dotenv()
 
-print("connecting to database")
+print("Connecting to database...")
 
 user, password = os.getenv("ELEPHANT_SQL_USERNAME"), os.getenv("ELEPHANT_SQL_PASSWORD")
 
-print(f'Loaded user, password: ({user}, {password})')
+print(f'Loaded user, password: ({user}, {password[0:3] + "*" * (len(password) - 3)})')
 
 conn = psycopg2.connect(
     host="peanut.db.elephantsql.com",
@@ -30,7 +30,9 @@ if cursor == None:
     print("FATAL ERROR: could not connect a cursor to the database")
     exit()
 
-print("setting up flask app")
+print("Successfully connected to database!")
+
+print("Setting up flask app...")
 app = Flask(__name__, static_folder="static")
 
 """
