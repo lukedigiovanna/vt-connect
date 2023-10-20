@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 // import { useNavigate } from "react-router-dom";
 import { get } from "../constants/api";
 import { EventCard } from "../components/EventCard";
-import { Event } from "../constants/models";
+import { Navbar } from "../components/Navbar";
+import { Event, eventDataToEvent } from "../constants/models";
 
 export const HomePage = () => {
     // const navigate = useNavigate();
@@ -12,15 +13,19 @@ export const HomePage = () => {
     useEffect(() => {
         (async () => {
             const result = await get("/events");
-            setEvents(result.data);
+            setEvents(result.data.map((eventData: any) => eventDataToEvent(eventData)));
         })();
     }, []);
 
     return (
-        <div>
-            {events.map((event: Event, index: number) => {
-                return <EventCard key={index} event={event} />
-            })}
-        </div>
+        <>
+            <Navbar />
+
+            <div>
+                {events.map((event: Event, index: number) => {
+                    return <EventCard key={index} event={event} />
+                })}
+            </div>
+        </>
     );
 };

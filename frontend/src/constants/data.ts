@@ -147,3 +147,18 @@ export const majors = [
     "Water: Resources, Policy, and Management",
     "Wildlife Conservation"
 ];
+
+export const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December"
+];

@@ -14,3 +14,11 @@ export interface Event {
     hostPid: string; // ditto
     imageUrl: string;
 }
+
+export const eventDataToEvent = (eventData: any): Event => {
+    return {
+        ...eventData,
+        startTime: new Date(eventData.startTime),
+        endTime: eventData.endTime ? new Date(eventData.endTime) : null,
+    }
+}
