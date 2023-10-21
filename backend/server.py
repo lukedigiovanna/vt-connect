@@ -64,6 +64,14 @@ def get_formatted_query_results():
     formatted_results = list(map(format, results))
     return formatted_results
 
+def get_user(pid):
+    cursor.execute(f"SELECT * FROM user_account WHERE pid='{pid}'")
+    results = get_formatted_query_results()
+    if len(results) == 0:
+        return None
+    else:
+        return results[0]
+
 """
 Checks if a user with the given PID already exists.
 """
@@ -87,11 +95,11 @@ Will return an error status if any fields are not given
 """
 @app.route('/api/signup', methods=["POST"])
 def signup():
-    body = json.loads(request.data.decode())['body']
+    body = json.loads(request.data.decode())
 
     necessary_fields = ['pid', 'password', 'firstName', 'lastName']
 
-    if len(list(filter(lambda f: f in body and len(body[f]) > 0, necessary_fields))) == 0:
+    if len(list(filter(lambda f: f not in body or len(body[f]) == 0, necessary_fields))) > 0:
         return 'Missing a required request parameter', 400
 
     pid, password, firstName, lastName = body['pid'], body['password'], body['firstName'], body['lastName']
@@ -117,7 +125,26 @@ can then use for protected tasks
 """
 @app.route('/api/login', methods=["POST"])
 def login():
-    return 'NOT_IMPLEMENTED'
+    # expect a pid and a password
+    body = json.loads(request.data.decode())
+
+    necessary_fields = ['pid', 'password']
+
+    if len(list(filter(lambda f: f not in body or len(body[f]) == 0, necessary_fields))) > 0:
+        return 'Missing a required request parameter', 400
+
+    pid, password = body['pid'], body['password']
+
+    user = get_user(pid)
+
+    if user is None:
+        return 'No user exists with that PID', 400
+    
+    # otherwise compare the password against that users hash
+    if not bcrypt.checkpw(password.encode('utf-8'), user['hash'].encode('utf-8')):
+        return 'Wrong password', 400
+
+    return user
 
 """
 Gets a JSON array of all registered users
@@ -129,13 +156,31 @@ def users():
     return get_formatted_query_results()
 
 """
-Gets a JSON array of the next events sorted by start time in decreasing order
+Gets a JSON array of the next events sorted by start time in ascending order (oldest first)
 """
 @app.route('/api/events', methods=["GET"])
 def events():
     cursor.execute('SELECT * FROM event ORDER BY start_time LIMIT 300 OFFSET 0')
     return get_formatted_query_results()
 
+"""
+Gets a particular event from the query params
+Expected to call as /api/event?id=<id>
+Example: /api/event?id=3uudiwo32093jfdalwo3io
+"""
+@app.route('/api/event', methods=["GET"])
+def event():
+    event_id = request.args.get('id')
+
+    if event_id is None:
+        return "Must specify an event id to query", 400
+
+    cursor.execute('SELECT * FROM event WHERE id=%s', (event_id))
+    results = get_formatted_query_results()
+    if len(results) == 0:
+        return "No event found", 400
+
+    return results[0]
 
 # Safely close connections/resources when the server is shutdown for any reason
 def shutdown():

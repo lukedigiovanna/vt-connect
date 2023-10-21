@@ -21,11 +21,11 @@ export const HomePage = () => {
     }, []);
 
     return (
-        <div className="pt-[76px]">
+        <div>
             <Background />
             <Navbar />
 
-            <div className="block mx-auto my-0 max-w-4xl bg-gray-50/25">
+            <div className="mx-auto my-0 max-w-4xl bg-gray-50/25 p-4 flex flex-col items-center">
                 {events.map((event: Event, index: number) => {
                     return <EventCard key={index} event={event} />;
                 })}

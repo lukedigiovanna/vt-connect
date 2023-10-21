@@ -14,6 +14,14 @@
     @apply block mx-auto text-gray-100 w-64 bg-zinc-900 hover:bg-zinc-700 disabled:opacity-50 active:bg-red-800 py-2 mt-10 transition cursor-pointer disabled:pointer-events-none;
 }
 
+.primary-button-colors {
+    @apply text-gray-100 bg-zinc-800 hover:bg-zinc-600 active:bg-red-800 transition;
+}
+
+.secondary-button-colors {
+    @apply text-gray-900 bg-zinc-200 hover:bg-zinc-300 active:bg-red-300 transition;
+}
+
 .background {
     background-image: url("./assets/background.jpg");
     background-size: cover;

@@ -1,6 +1,7 @@
 import { Event } from "../constants/models";
 import { months } from "../constants/data";
 import { toOrdinal } from "../constants/utils";
+import { useNavigate } from "react-router-dom";
 
 const DateLine = (props: { date: Date }) => {
     const month = months[props.date.getMonth()];
@@ -28,8 +29,12 @@ const TimeLine = (props: { date: Date }) => {
 };
 
 export const EventCard = (props: { event: Event }) => {
+    const navigate = useNavigate();
+
     return (
-        <div className="rounded border border-black p-5 max-w-xl my-4">
+        <div className="rounded border border-black p-5 max-w-xl w-full mb-4 cursor-pointer bg-gray-100/75" onClick={() => {
+            navigate(`/event/${props.event.id}`)
+        }}>
             <h1 className="font-bold text-xl">{props.event.title}</h1>
             <p>
                 <DateLine date={props.event.startTime} />
