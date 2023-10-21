@@ -1,10 +1,11 @@
-import React, { Dispatch, useState, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { majors } from "../constants/data";
 import { FormRow } from "./FormRow";
 import { post } from "../constants/api";
 import { useNavigate } from "react-router-dom";
 import { debounce } from "../constants/utils";
-import { AxiosError, AxiosResponse } from "axios";
+import { updateState } from "../constants/utils";
+import { useUserAccount } from "./providers/UserAccountProvider";
 
 export const SignUpForm = () => {
     const [pid, setPID] = useState("");
@@ -14,20 +15,12 @@ export const SignUpForm = () => {
     const [major, setMajor] = useState("");
     const [bio, setBio] = useState("");
 
+    const { login } = useUserAccount();
+
     const [validPassword, setValidPassword] = useState<boolean>(true);
     const [mismatchedPasswords, setMismatchedPasswords] =
         useState<boolean>(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-    const updateState = (
-        setState: Dispatch<React.SetStateAction<string>>,
-        callback: (content: string) => void = () => {}
-    ) => {
-        return (e: React.ChangeEvent<any>) => {
-            setState(e.target.value as string);
-            callback(e.target.value);
-        };
-    };
 
     const valid = useMemo(() => {
         const vals = [pid, password, firstName, lastName];
@@ -42,7 +35,14 @@ export const SignUpForm = () => {
         }
 
         return true;
-    }, [pid, firstName, lastName, password, validPassword, mismatchedPasswords]);
+    }, [
+        pid,
+        firstName,
+        lastName,
+        password,
+        validPassword,
+        mismatchedPasswords
+    ]);
 
     const validatePasswordDebounce = debounce((content: string) => {
         const regex =
@@ -54,24 +54,28 @@ export const SignUpForm = () => {
         setMismatchedPasswords(content.length > 0 && content !== password);
     }, 500);
 
-    const onSubmit = (e: any) => {
+    const onSubmit = async (e: any) => {
         e.preventDefault();
-        post("/signup", {
-            pid,
-            password,
-            firstName,
-            lastName,
-            major,
-            bio
-        }).then((_: AxiosResponse) => {
+        try {
+            const user = (
+                await post("/signup", {
+                    pid,
+                    password,
+                    firstName,
+                    lastName,
+                    major,
+                    bio
+                })
+            ).data;
+            login(user);
             navigate("/");
-        }).catch((error: AxiosError) => {
+        } catch (err: any) {
             let message = "Something went wrong";
-            if (error.response) {
-                message = error.response.data as string;
+            if (err.response) {
+                message = err.response.data as string;
             }
             setErrorMessage(message);
-        });
+        }
     };
 
     const navigate = useNavigate();
@@ -114,7 +118,7 @@ export const SignUpForm = () => {
                     placeholder="confirm password"
                     className="form-input w-full"
                     onChange={(e) => {
-                        const content = e.target.value
+                        const content = e.target.value;
                         if (content === password) {
                             setMismatchedPasswords(false);
                         }

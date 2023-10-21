@@ -1,10 +1,44 @@
 import { useNavigate } from "react-router-dom";
 import { FormRow } from "./FormRow";
+import { updateState } from "../constants/utils";
+import { useMemo, useState } from "react";
+import { post } from "../constants/api";
+import { useUserAccount } from "./providers/UserAccountProvider";
+import { UserAccount } from "../constants/models";
 
 export const LoginForm = () => {
-    const onSubmit = () => {};
+    const [pid, setPID] = useState<string>("");
+    const [password, setPassword] = useState<string>("");
+
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+    const { login } = useUserAccount();
+
+    const onSubmit = async (e: any) => {
+        e.preventDefault();
+        try {
+            const user = (
+                await post("/login", {
+                    pid,
+                    password
+                })
+            ).data as UserAccount;
+            login(user);
+            navigate("/");
+        } catch (err: any) {
+            let message = "Something went wrong";
+            if (err.response) {
+                message = err.response.data as string;
+            }
+            setErrorMessage(message);
+        }
+    };
 
     const navigate = useNavigate();
+
+    const valid = useMemo(() => {
+        return pid.length > 0 && password.length > 0;
+    }, [pid, password]);
 
     return (
         <form className="form">
@@ -14,13 +48,15 @@ export const LoginForm = () => {
                     type="text"
                     placeholder="pid"
                     className="form-input w-full"
+                    onChange={updateState(setPID)}
                 />
             </FormRow>
             <FormRow title="Password">
                 <input
-                    type="text"
+                    type="password"
                     placeholder="password"
                     className="form-input w-full"
+                    onChange={updateState(setPassword)}
                 />
             </FormRow>
             <p className="text-sm text-center text-gray-800">
@@ -34,7 +70,18 @@ export const LoginForm = () => {
                     Sign up
                 </span>
             </p>
-            <button className="form-submit-button" onClick={onSubmit}>
+
+            {errorMessage && (
+                <p className="text-center text-red-500 text-sm font-semibold mt-6">
+                    {errorMessage}
+                </p>
+            )}
+
+            <button
+                className="form-submit-button"
+                onClick={onSubmit}
+                disabled={!valid}
+            >
                 Login
             </button>
         </form>

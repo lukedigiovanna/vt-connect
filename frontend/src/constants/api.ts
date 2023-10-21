@@ -8,6 +8,6 @@ export const get = async (path: string) => {
 
 export const post = async (path: string, body: any = {}) => {
     return axios.post(`${url}${path}`, {
-        body
+        ...body
     });
 };

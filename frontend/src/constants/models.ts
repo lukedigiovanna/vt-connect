@@ -2,6 +2,8 @@ export interface UserAccount {
     pid: string;
     firstName: string;
     lastName: string;
+    major: string | null;
+    bio: string | null;
 }
 
 export interface Event {
@@ -19,6 +21,6 @@ export const eventDataToEvent = (eventData: any): Event => {
     return {
         ...eventData,
         startTime: new Date(eventData.startTime),
-        endTime: eventData.endTime ? new Date(eventData.endTime) : null,
-    }
-}
+        endTime: eventData.endTime ? new Date(eventData.endTime) : null
+    };
+};
