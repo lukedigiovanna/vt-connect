@@ -6,6 +6,8 @@ from dotenv import load_dotenv
 import os
 import json
 import bcrypt
+import base64
+import io
 
 load_dotenv()
 
@@ -34,6 +36,27 @@ if cursor == None:
 
 print("Successfully connected to database!")
 
+print("Connecting to S3 bucket")
+aws_access_key, aws_secret_access_key = os.getenv("AWS_ACCESS_KEY"), os.getenv("AWS_SECRET_ACCESS_KEY")
+s3 = boto3.client('s3', aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_access_key)
+
+def upload_data_uri_to_s3(data_uri, file_name, bucket_name):
+    # Splitting the data URI to extract header info and the actual data
+    header, encoded = data_uri.split(",", 1)
+    data = base64.b64decode(encoded)
+    
+    # Extracting file type from header (assuming it's in format "data:image/<file_type>;base64")
+    file_type = header.split("/")[1].split(";")[0]
+    
+    # Create a file-like object from the decoded data URI
+    image = io.BytesIO(data)
+
+    # Upload to S3
+    s3.upload_fileobj(image, bucket_name, file_name + '.' + file_type)
+    
+    url = f"https://{bucket_name}.s3.amazonaws.com/{file_name}.{file_type}"
+    return url
+
 print("Setting up flask app...")
 app = Flask(__name__, static_folder="static")
 
@@ -51,6 +74,9 @@ def snake_case_to_camel_case(string):
     tokens = string.split('_')
     tokens = [tokens[0]] + list(map(lambda s: s[0].upper() + s[1:], tokens[1:]))
     return ''.join(tokens)
+
+def has_all_fields(object, fields, require_content=True):
+    return len(list(filter(lambda f: f not in object or (require_content and len(object[f]) == 0), fields))) == 0
 
 """
 Returns a dictionary/JSON representation of the query results, which
@@ -99,7 +125,7 @@ def signup():
 
     necessary_fields = ['pid', 'password', 'firstName', 'lastName']
 
-    if len(list(filter(lambda f: f not in body or len(body[f]) == 0, necessary_fields))) > 0:
+    if not has_all_fields(body, necessary_fields):
         return 'Missing a required request parameter', 400
 
     pid, password, firstName, lastName = body['pid'], body['password'], body['firstName'], body['lastName']
@@ -130,7 +156,7 @@ def login():
 
     necessary_fields = ['pid', 'password']
 
-    if len(list(filter(lambda f: f not in body or len(body[f]) == 0, necessary_fields))) > 0:
+    if not has_all_fields(body, necessary_fields):
         return 'Missing a required request parameter', 400
 
     pid, password = body['pid'], body['password']
@@ -164,23 +190,34 @@ def events():
     return get_formatted_query_results()
 
 """
+GET:
 Gets a particular event from the query params
 Expected to call as /api/event?id=<id>
 Example: /api/event?id=3uudiwo32093jfdalwo3io
+
+POST:
+creates an event with the given information
 """
-@app.route('/api/event', methods=["GET"])
+@app.route('/api/event', methods=["GET, POST"])
 def event():
-    event_id = request.args.get('id')
+    if request.method == "GET":
+        event_id = request.args.get('id')
 
-    if event_id is None:
-        return "Must specify an event id to query", 400
+        if event_id is None:
+            return "Must specify an event id to query", 400
 
-    cursor.execute('SELECT * FROM event WHERE id=%s', (event_id))
-    results = get_formatted_query_results()
-    if len(results) == 0:
-        return "No event found", 400
+        cursor.execute('SELECT * FROM event WHERE id=%s', (event_id))
+        results = get_formatted_query_results()
+        if len(results) == 0:
+            return "No event found", 400
 
-    return results[0]
+        return results[0]
+    elif request.method == "POST":
+        body = json.loads(request.data.decode())
+
+        necessary_fields = ["title", "startTime", "hostId"]
+
+
 
 # Safely close connections/resources when the server is shutdown for any reason
 def shutdown():

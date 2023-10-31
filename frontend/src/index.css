@@ -19,7 +19,7 @@
 }
 
 .secondary-button-colors {
-    @apply text-gray-900 bg-zinc-200 hover:bg-zinc-300 active:bg-red-300 transition;
+    @apply text-gray-900 bg-gray-50 hover:bg-zinc-300 active:bg-red-300 transition;
 }
 
 .background {
