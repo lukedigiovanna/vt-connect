@@ -36,26 +36,26 @@ if cursor == None:
 
 print("Successfully connected to database!")
 
-print("Connecting to S3 bucket")
-aws_access_key, aws_secret_access_key = os.getenv("AWS_ACCESS_KEY"), os.getenv("AWS_SECRET_ACCESS_KEY")
-s3 = boto3.client('s3', aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_access_key)
+# print("Connecting to S3 bucket")
+# aws_access_key, aws_secret_access_key = os.getenv("AWS_ACCESS_KEY"), os.getenv("AWS_SECRET_ACCESS_KEY")
+# s3 = boto3.client('s3', aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_access_key)
 
-def upload_data_uri_to_s3(data_uri, file_name, bucket_name):
-    # Splitting the data URI to extract header info and the actual data
-    header, encoded = data_uri.split(",", 1)
-    data = base64.b64decode(encoded)
+# def upload_data_uri_to_s3(data_uri, file_name, bucket_name):
+#     # Splitting the data URI to extract header info and the actual data
+#     header, encoded = data_uri.split(",", 1)
+#     data = base64.b64decode(encoded)
     
-    # Extracting file type from header (assuming it's in format "data:image/<file_type>;base64")
-    file_type = header.split("/")[1].split(";")[0]
+#     # Extracting file type from header (assuming it's in format "data:image/<file_type>;base64")
+#     file_type = header.split("/")[1].split(";")[0]
     
-    # Create a file-like object from the decoded data URI
-    image = io.BytesIO(data)
+#     # Create a file-like object from the decoded data URI
+#     image = io.BytesIO(data)
 
-    # Upload to S3
-    s3.upload_fileobj(image, bucket_name, file_name + '.' + file_type)
+#     # Upload to S3
+#     s3.upload_fileobj(image, bucket_name, file_name + '.' + file_type)
     
-    url = f"https://{bucket_name}.s3.amazonaws.com/{file_name}.{file_type}"
-    return url
+#     url = f"https://{bucket_name}.s3.amazonaws.com/{file_name}.{file_type}"
+#     return url
 
 print("Setting up flask app...")
 app = Flask(__name__, static_folder="static")
