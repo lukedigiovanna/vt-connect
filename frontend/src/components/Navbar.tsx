@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 
 export const Navbar = () => {
     const { user, logout } = useUserAccount();
-    console.log(user);
 
     const navigate = useNavigate();
 
@@ -12,7 +11,7 @@ export const Navbar = () => {
 
     return (
         <>
-            <div className="flex items-center px-16 w-full h-20 bg-gray-100/95 fixed top-0" ref={barRef}>
+            <div className="flex items-center px-16 w-full h-16 bg-gray-300 fixed top-0" ref={barRef}>
                 <div className="relative w-full flex items-center">
                     {/* Title */}
                     <h1
@@ -30,7 +29,7 @@ export const Navbar = () => {
                     {/* User Info/Login */}
                     {user ? (
                         <div className="flex items-center">
-                            <button className="rounded text-sm px-4 py-1 mr-4 primary-button-colors" onClick={() => {
+                            <button className="rounded text-sm px-5 py-2 mr-4 primary-button-colors" onClick={() => {
                                 navigate("/new-event");
                             }}>
                                 + Event

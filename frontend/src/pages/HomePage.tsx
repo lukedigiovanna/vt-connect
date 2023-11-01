@@ -25,10 +25,18 @@ export const HomePage = () => {
             <Background />
             <Navbar />
 
-            <div className="mx-auto my-0 max-w-4xl bg-gray-50/25 p-4 flex flex-col items-center">
-                {events.map((event: Event, index: number) => {
-                    return <EventCard key={index} event={event} />;
-                })}
+            <div className="mx-auto my-0 max-w-4xl bg-gray-50/90 px-8 py-4 grid grid-rows-1 grid-cols-[1fr_4fr]">
+                <div>
+                    <h1>Filters</h1>
+                    <p>
+                        Could put filters here like a full text search, search by time, search by tags, chronological etc.
+                    </p>
+                </div>
+                <div className="flex flex-col items-center">
+                    {events.map((event: Event, index: number) => {
+                        return <EventCard key={index} event={event} />;
+                    })}
+                </div>
             </div>
         </div>
     );
