@@ -12,7 +12,10 @@ export const Navbar = () => {
 
     return (
         <>
-            <div className="flex items-center px-16 w-full h-20 bg-gray-100/95 fixed top-0" ref={barRef}>
+            <div
+                className="flex items-center px-16 w-full h-20 bg-gray-100/95 fixed top-0"
+                ref={barRef}
+            >
                 <div className="relative w-full flex items-center">
                     {/* Title */}
                     <h1
@@ -21,7 +24,8 @@ export const Navbar = () => {
                             navigate("/");
                         }}
                     >
-                        <img src="vt-logo.png" alt="VT" className="w-14" /> Connect
+                        <img src="vt-logo.png" alt="VT" className="w-14" />{" "}
+                        Connect
                     </h1>
 
                     {/* Spacer */}
@@ -30,11 +34,21 @@ export const Navbar = () => {
                     {/* User Info/Login */}
                     {user ? (
                         <div className="flex items-center">
-                            <button className="rounded text-sm px-4 py-1 mr-4 primary-button-colors" onClick={() => {
-                                navigate("/new-event");
-                            }}>
+                            <button
+                                className="rounded text-sm px-4 py-1 mr-4 primary-button-colors"
+                                onClick={() => {
+                                    navigate("/new-event");
+                                }}
+                            >
                                 + Event
                             </button>
+                            <button
+                                className="rounded text-sm px-4 py-1 mr-4 primary-button-colors"
+                                onClick={() => navigate("/profile")}
+                            >
+                                My Profile
+                            </button>
+
                             <p className="font-bold">
                                 {user.pid}{" "}
                                 <span
@@ -70,9 +84,12 @@ export const Navbar = () => {
                     )}
                 </div>
             </div>
-            <div className="w-full" style={{
-                height: barRef.current ? barRef.current.offsetHeight : 80
-            }} />
+            <div
+                className="w-full"
+                style={{
+                    height: barRef.current ? barRef.current.offsetHeight : 80
+                }}
+            />
         </>
     );
 };

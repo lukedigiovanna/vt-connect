@@ -1,0 +1,86 @@
+.profile-container {
+    position: relative;
+    width: 100%;
+    max-width: 500px; 
+    margin: 0 auto;
+    padding: 2rem;
+    background-color: #ffffff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    margin-top: 100px; 
+    text-align: center;
+    z-index: 10; /* to ensure it's above the background */
+}
+
+.profile-details {
+    text-align: left;
+    margin-bottom: 2rem;
+}
+
+.delete-button {
+    background-color: #ff6b6b;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.delete-button:hover {
+    background-color: #ff4949;
+}
+
+/* Button styles */
+.button {
+    padding: 0.75rem 1.5rem;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+    margin-right: 1rem; /* space between buttons */
+}
+
+/* reusing styles for delete, save, and cancel buttons */
+.delete-button, .save-button, .cancel-button, .edit-button{
+    color: white;
+}
+
+/* specific styles for delete, save, and cancel buttons */
+.delete-button {
+    background-color: #ff6b6b;
+}
+
+.delete-button:hover {
+    background-color: #ff4949;
+}
+
+.edit-button {
+    background-color: orange;
+}
+
+.edit-button:hover {
+    background-color: dark orangered;
+}
+
+.save-button {
+    background-color: #4caf50; /* A green color */
+}
+
+.save-button:hover {
+    background-color: #43a047; /* A darker green color */
+}
+
+.cancel-button {
+    background-color: #f0ad4e; /* A yellow color */
+}
+
+.cancel-button:hover {
+    background-color: #ec971f; /* A darker yellow color */
+}
+
+/* Ensure buttons don't stick to each other */
+.button:last-child {
+    margin-right: 0;
+}

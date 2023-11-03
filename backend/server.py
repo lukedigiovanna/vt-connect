@@ -1,5 +1,5 @@
 import atexit
-from flask import Flask, send_from_directory, abort, request
+from flask import Flask, send_from_directory, abort, request, jsonify
 from flask_cors import CORS
 import psycopg2
 from dotenv import load_dotenv
@@ -112,6 +112,56 @@ def get_optional_attrib(body, name):
         return None
     else:
         return body[name]
+
+"""
+Takes in pid and major to update the major of an user based on 
+the passed in PID
+"""
+@app.route('/api/update-user', methods=["POST"])
+def updateUser():
+    try:
+        body = request.get_json()
+        pid = body['pid']
+        major = body['major']
+
+        # update user's major in the database
+        cursor.execute("UPDATE user_account SET major = %s WHERE pid = %s", (major, pid))
+        conn.commit()
+
+        # check the number of rows affected
+        if cursor.rowcount == 0:
+            return jsonify({'message': 'User not found or no update needed'}), 404
+
+        return jsonify({'message': 'User updated successfully'}), 200
+
+    except Exception as e:
+        print(str(e))  # log the error for debugging purposes
+        return jsonify({'message': 'An error occurred while updating the user'}), 500
+
+"""
+Takes in the pid of a user and removes them from the database
+"""
+@app.route('/api/deleteUser', methods=["POST"])
+def deleteUser():
+    try:
+        body = request.get_json()
+        pid = body['pid']
+        
+        # check if the user exists before attempting to delete
+        cursor.execute("SELECT * FROM user_account WHERE pid = %s", (pid,))
+        if cursor.fetchone() is None:
+            return jsonify({'message': 'User not found'}), 404
+
+        # delete user from the database
+        cursor.execute("DELETE FROM user_account WHERE pid = %s", (pid,))
+        conn.commit()
+
+        return jsonify({'message': 'User deleted successfully'}), 200
+
+    except Exception as e:
+        # log the error for debugging
+        print(str(e))
+        return jsonify({'message': 'An error occurred while deleting the user'}), 500
 
 """
 Takes all user information necessary to sign the user up or uses
