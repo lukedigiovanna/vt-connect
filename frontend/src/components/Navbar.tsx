@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 
 export const Navbar = () => {
     const { user, logout } = useUserAccount();
-    console.log(user);
 
     const navigate = useNavigate();
 

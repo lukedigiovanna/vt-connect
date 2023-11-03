@@ -1,10 +1,5 @@
 import { Routes, Route } from "react-router-dom";
-import { RegisterPage } from "./pages/RegisterPage";
-import { HomePage } from "./pages/HomePage";
-import { LoginPage } from "./pages/LoginPage";
-import { EventPage } from "./pages/EventPage";
-import { NewEventPage } from "./pages/NewEventPage";
-import { ProfilePage } from "./pages/ProfilePage";
+import { HomePage, RegisterPage, LoginPage, EventPage, ProfilePage, AccountPage, NewEventPage, AdminDashboardPage } from "./pages";
 
 function App() {
     return (
@@ -13,8 +8,11 @@ function App() {
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/event/:id" element={<EventPage />} />
+            <Route path="/user/:pid" element={<ProfilePage />} />
+            <Route path="/account" element={<AccountPage />} />
             <Route path="/new-event" element={<NewEventPage />} />
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/admin" element={<AdminDashboardPage />} />
         </Routes>
     );
 }
