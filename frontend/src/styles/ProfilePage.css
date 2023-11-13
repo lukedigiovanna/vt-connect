@@ -43,7 +43,7 @@
 }
 
 /* reusing styles for delete, save, and cancel buttons */
-.delete-button, .save-button, .cancel-button, .edit-button{
+.delete-button, .save-button, .cancel-button, .edit-button, .red-button{
     color: white;
 }
 
@@ -51,7 +51,9 @@
 .delete-button {
     background-color: #ff6b6b;
 }
-
+.red-button {
+    background-color: #ff4949;
+}
 .delete-button:hover {
     background-color: #ff4949;
 }
