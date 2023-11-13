@@ -223,6 +223,54 @@ def login():
     return user
 
 """
+Ability to change password 
+"""
+@app.route("/api/change-password", methods=['POST'])
+def change_password():
+    body = json.loads(request.data.decode())
+
+    print("body " + str(body))
+
+    
+    necessary_fields = ['pid', 'new_password']
+    if not has_all_fields(body, necessary_fields): 
+
+        return 'Missing a required request parameter', 400 
+    
+    pid, new_password = body['pid'], body['new_password']
+    user = get_user(pid)
+
+    print("user is " + str(user))
+
+
+    if user is None:
+        return 'No user exists with that pid', 400
+    
+    # Now update the current user's password with the new password 
+    new_hashed_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+
+    try: 
+        cursor.execute("""UPDATE user_account 
+                            SET hash = %s 
+                            WHERE pid = %s""",
+                            (new_hashed_password, pid))
+        conn.commit() 
+        return jsonify({'message': 'Password updated successfully'}), 200
+
+    except Exception as e: 
+        print("Error updating passowrd")
+        conn.rollback() 
+        return 'Error updating password', 500
+
+
+    
+
+
+
+
+
+
+"""
 Gets a JSON array of all registered users
 """
 @app.route('/api/users', methods=["GET"])
