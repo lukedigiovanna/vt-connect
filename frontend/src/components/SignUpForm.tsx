@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { debounce } from "../constants/utils";
 import { updateState } from "../constants/utils";
 import { useUserAccount } from "./providers/UserAccountProvider";
+import { passwordRegex } from "../constants/password";
 
 export const SignUpForm = () => {
     const [pid, setPID] = useState("");
@@ -45,9 +46,7 @@ export const SignUpForm = () => {
     ]);
 
     const validatePasswordDebounce = debounce((content: string) => {
-        const regex =
-            /^(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
-        setValidPassword(content.length === 0 || regex.test(content));
+        setValidPassword(content.length === 0 || passwordRegex.test(content));
     }, 1000);
 
     const comparePasswordDebounce = debounce((content: string) => {

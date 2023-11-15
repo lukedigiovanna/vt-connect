@@ -6,6 +6,7 @@ import { Navbar } from "../components/Navbar";
 import "../styles/ProfilePage.css";
 import { post } from "../constants/api";
 import Swal from "sweetalert2";
+import { passwordRegex } from "../constants/password";
 
 
 export const ProfilePage = () => {
@@ -18,19 +19,13 @@ export const ProfilePage = () => {
     const handleDeleteAccount = async (e: any) => {
         e.preventDefault();
         try {
-            const user = (
-                await post("/deleteUser", {
-                    pid
-                })
-            ).data;
+            await post("/deleteUser", {
+                pid
+            })
             logout()
             navigate("/");
         } catch (err: any) {
-            let message = "Something went wrong";
-            if (err.response) {
-                message = err.response.data as string;
-            }
-            // setErrorMessage(message);
+            console.log(err);
         }
     }
 
@@ -39,86 +34,85 @@ export const ProfilePage = () => {
     };
 
  
-const handleChangePassword = async () => {
-    const { value: formValues } = await Swal.fire({
-        title: 'Change Password',
-        html:
-            '<input id="swal-pid" class="swal2-input" placeholder="PID">' +
-            '<input id="swal-new-password" type="password" class="swal2-input" placeholder="New Password">' +
-            '<input id="swal-confirm-password" type="password" class="swal2-input" placeholder="Confirm New Password">',
-        focusConfirm: false,
-        showCancelButton: true,
-        confirmButtonText: 'Change Password',
-        cancelButtonText: 'Cancel',
-        showLoaderOnConfirm: true,
-        preConfirm: () => {
-            return {
-                pid: (document.getElementById('swal-pid') as HTMLInputElement).value,
-                newPassword: (document.getElementById('swal-new-password') as HTMLInputElement).value,
-                confirmPassword: (document.getElementById('swal-confirm-password') as HTMLInputElement).value,
-            };
-        },
-    });
+    const handleChangePassword = async () => {
+        const { value: formValues } = await Swal.fire({
+            title: 'Change Password',
+            html:
+                '<input id="swal-pid" class="swal2-input" placeholder="PID">' +
+                '<input id="swal-new-password" type="password" class="swal2-input" placeholder="New Password">' +
+                '<input id="swal-confirm-password" type="password" class="swal2-input" placeholder="Confirm New Password">',
+            focusConfirm: false,
+            showCancelButton: true,
+            confirmButtonText: 'Change Password',
+            cancelButtonText: 'Cancel',
+            showLoaderOnConfirm: true,
+            preConfirm: () => {
+                return {
+                    pid: (document.getElementById('swal-pid') as HTMLInputElement).value,
+                    newPassword: (document.getElementById('swal-new-password') as HTMLInputElement).value,
+                    confirmPassword: (document.getElementById('swal-confirm-password') as HTMLInputElement).value,
+                };
+            },
+        });
 
-    if (formValues) {
-        console.log('PID:', formValues.pid);
-        console.log('New Password:', formValues.newPassword);
-        console.log('Confirm Password:', formValues.confirmPassword);
+        if (formValues) {
+            console.log('PID:', formValues.pid);
+            console.log('New Password:', formValues.newPassword);
+            console.log('Confirm Password:', formValues.confirmPassword);
 
-        // Check password complexity
-        if (!isPasswordComplex(formValues.newPassword)) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error...',
-                text: 'Password must contain an uppercase letter, a lowercase letter, a special character, and be at least 8 characters long',
-            });
-        }
-
-        else if (formValues.newPassword !== formValues.confirmPassword) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error...',
-                text: 'Your passwords do not match',
-            });
-        }
-
-        else {
-
-
-
-        const pid = formValues.pid 
-        const new_password = formValues.newPassword         
-
-        try {
-            const changed_pwd_response = (
-                await post("/change-password", {
-                 pid, new_password
-                })
-            );
-
-
-            if (changed_pwd_response.status === 200) {
-
+            // Check password complexity
+            if (!isPasswordComplex(formValues.newPassword)) {
                 Swal.fire({
-                    icon: "success",
-                    title: "Success!",
-                    text: "Your password has been successfully changed",
-                    showConfirmButton: true,
-                  });
+                    icon: 'error',
+                    title: 'Error...',
+                    text: 'Password must contain an uppercase letter, a lowercase letter, a special character, and be at least 8 characters long',
+                });
             }
-          
-        } catch (error) {
-            console.log("error " + error)
-        }
-    }
-    }
-};
 
-// Function to check password complexity
-const isPasswordComplex = (password: string): boolean => {
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>])(?=.*\d)[a-zA-Z\d!@#$%^&*(),.?":{}|<>]{8,}$/;
-    return passwordRegex.test(password);
-};
+            else if (formValues.newPassword !== formValues.confirmPassword) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error...',
+                    text: 'Your passwords do not match',
+                });
+            }
+
+            else {
+
+
+
+            const pid = formValues.pid 
+            const new_password = formValues.newPassword         
+
+            try {
+                const changed_pwd_response = (
+                    await post("/change-password", {
+                    pid, new_password
+                    })
+                );
+
+
+                if (changed_pwd_response.status === 200) {
+
+                    Swal.fire({
+                        icon: "success",
+                        title: "Success!",
+                        text: "Your password has been successfully changed",
+                        showConfirmButton: true,
+                    });
+                }
+            
+            } catch (error) {
+                console.log("error " + error)
+            }
+        }
+        }
+    };
+
+    // Function to check password complexity
+    const isPasswordComplex = (password: string): boolean => {
+        return passwordRegex.test(password);
+    };
 
     const handleSave = async () => {
         try {
