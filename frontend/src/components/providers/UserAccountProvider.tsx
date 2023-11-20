@@ -1,7 +1,7 @@
 import { PropsWithChildren, createContext, useContext, useEffect, useState, useMemo, useCallback } from "react";
 import { UserAccount, UserAuth } from "../../constants/models";
 import Cookies from "universal-cookie"
-import { post } from "../../constants/api";
+import { apiPost } from "../../constants/api";
 
 type UserAccountContextType = {
     user: UserAccount | null;
@@ -50,7 +50,7 @@ export const UserAccountProvider = (props: PropsWithChildren) => {
         const password = cookies.get("password");
 
         if (pid !== undefined && password !== undefined ) {
-            post("/login", {
+            apiPost("/login", {
                 pid,
                 password
             }).then((res => {

@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Background } from "../components/Background";
 import { Navbar } from "../components/Navbar";
 import "../styles/ProfilePage.css";
-import { post } from "../constants/api";
+import { apiPost } from "../constants/api";
 import Swal from "sweetalert2";
 import { passwordRegex } from "../constants/password";
 
@@ -19,7 +19,7 @@ export const ProfilePage = () => {
     const handleDeleteAccount = async (e: any) => {
         e.preventDefault();
         try {
-            await post("/deleteUser", {
+            await apiPost("/deleteUser", {
                 pid
             })
             logout()
@@ -86,7 +86,7 @@ export const ProfilePage = () => {
 
             try {
                 const changed_pwd_response = (
-                    await post("/change-password", {
+                    await apiPost("/change-password", {
                     pid, new_password
                     })
                 );
@@ -117,7 +117,7 @@ export const ProfilePage = () => {
     const handleSave = async () => {
         try {
             console.log("clicked save")
-            const response = await post("/update-user", { pid, major });
+            const response = await apiPost("/update-user", { pid, major });
 
             if (user) {
                 const updatedUser = {

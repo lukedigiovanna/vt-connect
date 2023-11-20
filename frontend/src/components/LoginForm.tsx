@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { FormRow } from "./FormRow";
 import { updateState } from "../constants/utils";
 import { useMemo, useState } from "react";
-import { post } from "../constants/api";
+import { apiPost } from "../constants/api";
 import { useUserAccount } from "./providers/UserAccountProvider";
 import { UserAccount } from "../constants/models";
 
@@ -18,7 +18,7 @@ export const LoginForm = () => {
         e.preventDefault();
         try {
             const user = (
-                await post("/login", {
+                await apiPost("/login", {
                     pid,
                     password
                 })

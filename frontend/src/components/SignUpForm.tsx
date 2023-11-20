@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { majors } from "../constants/data";
 import { FormRow } from "./FormRow";
-import { post } from "../constants/api";
+import { apiPost } from "../constants/api";
 import { useNavigate } from "react-router-dom";
 import { debounce } from "../constants/utils";
 import { updateState } from "../constants/utils";
@@ -57,7 +57,7 @@ export const SignUpForm = () => {
         e.preventDefault();
         try {
             const user = (
-                await post("/signup", {
+                await apiPost("/signup", {
                     pid,
                     password,
                     firstName,

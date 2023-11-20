@@ -2,7 +2,7 @@ import { useParams } from "react-router-dom"
 import { Navbar } from "../components/Navbar";
 import { useState, useEffect } from "react";
 import { Event } from "../constants/models";
-import { get } from "../constants/api";
+import { apiGet } from "../constants/api";
 
 type StatusType = 'loading' | 'success' | 'failure';
 
@@ -15,7 +15,7 @@ export const EventPage = () => {
     useEffect(() => {
         (async () => {
             try {
-                const result = await get(`/event?id=${id}`);
+                const result = await apiGet(`/event?id=${id}`);
                 setEvent(result.data);
                 setStatus("success");
             }
