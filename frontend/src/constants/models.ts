@@ -1,3 +1,8 @@
+export interface UserAuth {
+    pid: string;
+    password: string;
+}
+
 export interface UserAccount {
     pid: string;
     firstName: string;

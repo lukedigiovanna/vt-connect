@@ -1,9 +1,11 @@
-import { PropsWithChildren, createContext, useContext, useState } from "react";
-import { UserAccount } from "../../constants/models";
+import { PropsWithChildren, createContext, useContext, useEffect, useState, useMemo, useCallback } from "react";
+import { UserAccount, UserAuth } from "../../constants/models";
+import Cookies from "universal-cookie"
+import { post } from "../../constants/api";
 
 type UserAccountContextType = {
     user: UserAccount | null;
-    login: (user: UserAccount) => void;
+    login: (user: UserAccount, auth?: UserAuth) => void;
     logout: () => void;
 };
 
@@ -26,13 +28,39 @@ export const useUserAccount = () => {
 export const UserAccountProvider = (props: PropsWithChildren) => {
     const [user, setUser] = useState<UserAccount | null>(null);
 
-    const login = (user: UserAccount) => {
-        setUser(user);
-    };
+    const cookies = useMemo(() => new Cookies(), []);
 
+    const login = useCallback((user: UserAccount, auth?: UserAuth) => {
+        setUser(user);
+        if (auth) {
+            cookies.set("pid", auth.pid, { path: '/' });
+            cookies.set("password", auth.password, { path: '/' });
+        }
+    }, [cookies]);
+    
     const logout = () => {
         setUser(null);
+        cookies.remove("pid", { path: '/' });
+        cookies.remove("password", { path: '/' });
     };
+
+    useEffect(() => {
+        // check if authentication credentials are available
+        const pid = cookies.get("pid");
+        const password = cookies.get("password");
+
+        if (pid !== undefined && password !== undefined ) {
+            post("/login", {
+                pid,
+                password
+            }).then((res => {
+                const user = res.data
+                login(user, { pid, password });
+            })).catch(err => {
+                console.error(err);
+            })
+        }
+    }, [cookies, login])
 
     return (
         <UserAccountContext.Provider value={{ user, login, logout }}>

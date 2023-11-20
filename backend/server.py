@@ -118,7 +118,7 @@ Takes in pid and major to update the major of an user based on
 the passed in PID
 """
 @app.route('/api/update-user', methods=["POST"])
-def updateUser():
+def update_user():
     try:
         body = request.get_json()
         pid = body['pid']
@@ -142,7 +142,7 @@ def updateUser():
 Takes in the pid of a user and removes them from the database
 """
 @app.route('/api/deleteUser', methods=["POST"])
-def deleteUser():
+def delete_user():
     try:
         body = request.get_json()
         pid = body['pid']
@@ -211,6 +211,8 @@ def login():
 
     pid, password = body['pid'], body['password']
 
+    print(pid, password)
+
     user = get_user(pid)
 
     if user is None:
@@ -261,13 +263,6 @@ def change_password():
         print("Error updating passowrd")
         conn.rollback() 
         return 'Error updating password', 500
-
-
-    
-
-
-
-
 
 
 """
