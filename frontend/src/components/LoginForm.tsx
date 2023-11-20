@@ -23,7 +23,7 @@ export const LoginForm = () => {
                     password
                 })
             ).data as UserAccount;
-            login(user);
+            login(user, { pid, password });
             navigate("/");
         } catch (err: any) {
             let message = "Something went wrong";

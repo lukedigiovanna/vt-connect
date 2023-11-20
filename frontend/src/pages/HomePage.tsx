@@ -5,6 +5,7 @@ import { EventCard } from "../components/EventCard";
 import { Navbar } from "../components/Navbar";
 import { Event, eventDataToEvent } from "../constants/models";
 import { Background } from "../components/Background";
+import { json } from "stream/consumers";
 
 export const HomePage = () => {
     // const navigate = useNavigate();
@@ -12,12 +13,23 @@ export const HomePage = () => {
     const [events, setEvents] = useState<Event[]>([]);
 
     useEffect(() => {
-        (async () => {
-            const result = await get("/events");
+        // (async () => {
+        //     const result = await get("/events");
+        //     setEvents(
+        //         result.data.map((eventData: any) => eventDataToEvent(eventData))
+        //     );
+        // })();
+
+        get("/events")
+        .then(res => {
+            const events = res.data;
             setEvents(
-                result.data.map((eventData: any) => eventDataToEvent(eventData))
-            );
-        })();
+                events.map((eventData: any) => eventDataToEvent(eventData))
+            )
+        })
+        .catch(err => {
+            console.log(err);
+        });
     }, []);
 
     return (
