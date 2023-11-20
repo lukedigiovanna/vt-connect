@@ -2,12 +2,14 @@ import atexit
 from flask import Flask, send_from_directory, abort, request, jsonify
 from flask_cors import CORS
 import psycopg2
+from psycopg2 import pool
 from dotenv import load_dotenv
 import os
 import json
 import bcrypt
 import base64
 import io
+from functools import wraps
 
 load_dotenv()
 
@@ -17,22 +19,20 @@ user, password = os.getenv("ELEPHANT_SQL_USERNAME"), os.getenv("ELEPHANT_SQL_PAS
 
 print(f'Loaded user, password: ({user}, {password[0:3] + "*" * (len(password) - 3)})')
 
-conn = psycopg2.connect(
+db_pool = pool.SimpleConnectionPool(
+    minconn=1,
+    maxconn=10,
     host="peanut.db.elephantsql.com",
     database="rhbtxrau",
     user=user,
     password=password
 )
 
-if conn == None:
+if db_pool.closed:
     print("FATAL ERROR: could not connect to the database")
-    exit()
+    exit(1)
 
-cursor = conn.cursor()
-
-if cursor == None:
-    print("FATAL ERROR: could not connect a cursor to the database")
-    exit()
+# cursor = conn.cursor()
 
 print("Successfully connected to database!")
 
@@ -63,6 +63,18 @@ app = Flask(__name__, static_folder="static")
 # Enable CORS to allow requests from any origin
 CORS(app)
 
+def with_db_connection(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        conn = db_pool.getconn()
+        try:
+            with conn.cursor() as cursor:
+                return f(conn, cursor, *args, **kwargs)
+        finally:
+            db_pool.putconn(conn)
+    return decorated_function
+
+
 """
 Returns the public HTML of the page
 """
@@ -82,7 +94,7 @@ def has_all_fields(object, fields, require_content=True):
 Returns a dictionary/JSON representation of the query results, which
 is useful for returning and processing the results on the frontend.
 """
-def get_formatted_query_results():
+def get_formatted_query_results(cursor):
     results = cursor.fetchall()
     column_names = [desc[0] for desc in cursor.description]
     def format(result):
@@ -90,9 +102,9 @@ def get_formatted_query_results():
     formatted_results = list(map(format, results))
     return formatted_results
 
-def get_user(pid):
+def get_user(cursor, pid):
     cursor.execute(f"SELECT * FROM user_account WHERE pid='{pid}'")
-    results = get_formatted_query_results()
+    results = get_formatted_query_results(cursor)
     if len(results) == 0:
         return None
     else:
@@ -101,7 +113,7 @@ def get_user(pid):
 """
 Checks if a user with the given PID already exists.
 """
-def user_exists(pid):
+def user_exists(cursor, pid):
     cursor.execute(f"SELECT * FROM user_account WHERE pid='{pid}'")
     result = cursor.fetchall()
     return len(result) > 0
@@ -118,7 +130,8 @@ Takes in pid and major to update the major of an user based on
 the passed in PID
 """
 @app.route('/api/update-user', methods=["POST"])
-def update_user():
+@with_db_connection
+def update_user(conn, cursor):
     try:
         body = request.get_json()
         pid = body['pid']
@@ -142,7 +155,8 @@ def update_user():
 Takes in the pid of a user and removes them from the database
 """
 @app.route('/api/deleteUser', methods=["POST"])
-def delete_user():
+@with_db_connection
+def delete_user(conn, cursor):
     try:
         body = request.get_json()
         pid = body['pid']
@@ -170,7 +184,8 @@ default values when necessary.
 Will return an error status if any fields are not given
 """
 @app.route('/api/signup', methods=["POST"])
-def signup():
+@with_db_connection
+def signup(conn, cursor):
     body = json.loads(request.data.decode())
 
     necessary_fields = ['pid', 'password', 'firstName', 'lastName']
@@ -200,7 +215,8 @@ Performs authentication to return a JWT that the client
 can then use for protected tasks
 """
 @app.route('/api/login', methods=["POST"])
-def login():
+@with_db_connection
+def login(conn, cursor):
     # expect a pid and a password
     body = json.loads(request.data.decode())
 
@@ -213,7 +229,7 @@ def login():
 
     print(pid, password)
 
-    user = get_user(pid)
+    user = get_user(cursor, pid)
 
     if user is None:
         return 'No user exists with that PID', 400
@@ -228,7 +244,8 @@ def login():
 Ability to change password 
 """
 @app.route("/api/change-password", methods=['POST'])
-def change_password():
+@with_db_connection
+def change_password(conn, cursor):
     body = json.loads(request.data.decode())
 
     print("body " + str(body))
@@ -269,18 +286,22 @@ def change_password():
 Gets a JSON array of all registered users
 """
 @app.route('/api/users', methods=["GET"])
-def users():
+@with_db_connection
+def users(conn, cursor):
     # get up to 300 users
     cursor.execute('SELECT * FROM user_account LIMIT 300 OFFSET 0')
-    return get_formatted_query_results()
+    return get_formatted_query_results(cursor)
 
 """
 Gets a JSON array of the next events sorted by start time in ascending order (oldest first)
 """
 @app.route('/api/events', methods=["GET"])
-def events():
+@with_db_connection
+def events(conn, cursor):
     cursor.execute('SELECT * FROM event ORDER BY start_time LIMIT 300 OFFSET 0')
-    return get_formatted_query_results()
+    return get_formatted_query_results(cursor)
+    
+
 
 """
 GET:
@@ -292,7 +313,8 @@ POST:
 creates an event with the given information
 """
 @app.route('/api/event', methods=["GET, POST"])
-def event():
+@with_db_connection
+def event(conn, cursor):
     if request.method == "GET":
         event_id = request.args.get('id')
 
@@ -300,7 +322,7 @@ def event():
             return "Must specify an event id to query", 400
 
         cursor.execute('SELECT * FROM event WHERE id=%s', (event_id))
-        results = get_formatted_query_results()
+        results = get_formatted_query_results(cursor)
         if len(results) == 0:
             return "No event found", 400
 
@@ -309,14 +331,11 @@ def event():
         body = json.loads(request.data.decode())
 
         necessary_fields = ["title", "startTime", "hostId"]
-
-
-
+    
 # Safely close connections/resources when the server is shutdown for any reason
 def shutdown():
     print("Flask is shutting down...")
-    cursor.close()
-    conn.close()
+    db_pool.closeall()
 
 atexit.register(shutdown)
 
