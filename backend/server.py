@@ -195,7 +195,7 @@ def signup(conn, cursor):
 
     pid, password, firstName, lastName = body['pid'], body['password'], body['firstName'], body['lastName']
 
-    if user_exists(pid):
+    if user_exists(cursor, pid):
         return 'A user with that pid already exists', 400
     
     # check for optional fields: major, bio
@@ -331,6 +331,22 @@ def event(conn, cursor):
         body = json.loads(request.data.decode())
 
         necessary_fields = ["title", "startTime", "hostId"]
+
+@app.route('/api/admin/statistics', methods=["GET"])
+@with_db_connection
+def admin_statistics(conn, cursor):
+    try:
+        cursor.execute('SELECT COUNT(*) as user_count FROM user_account')
+        user_count = cursor.fetchone()[0]
+
+        cursor.execute('SELECT COUNT(*) as event_count FROM event')
+        event_count = cursor.fetchone()[0]
+
+        return jsonify({'userCount': user_count, 'eventCount': event_count})
+    except Exception as e:
+        print(str(e))
+        return jsonify({'message': 'Error fetching statistics'}), 500
+
     
 # Safely close connections/resources when the server is shutdown for any reason
 def shutdown():

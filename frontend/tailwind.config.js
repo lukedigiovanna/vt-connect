@@ -4,8 +4,14 @@
 module.exports = {
   content: ["./src/**/*.{js,ts,jsx,tsx,mdx}"],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        maroon: {
+          600: '#7B113A' // Custom maroon color for Virginia Tech theme
+        }
+      }
+    }
   },
-  plugins: [],
-}
+  plugins: []
+};
 
