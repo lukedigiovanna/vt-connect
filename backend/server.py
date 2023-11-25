@@ -342,12 +342,27 @@ def admin_statistics(conn, cursor):
         cursor.execute('SELECT COUNT(*) as event_count FROM event')
         event_count = cursor.fetchone()[0]
 
-        return jsonify({'userCount': user_count, 'eventCount': event_count})
+        cursor.execute('SELECT major, COUNT(*) as count FROM user_account GROUP BY major')
+        major_distribution = get_formatted_query_results(cursor)
+
+        # Query to get the count of events per month
+        cursor.execute("""
+            SELECT EXTRACT(MONTH FROM start_time) as month, COUNT(*) as count 
+            FROM event 
+            GROUP BY EXTRACT(MONTH FROM start_time)
+        """)
+        events_per_month = get_formatted_query_results(cursor)
+
+        return jsonify({
+            'userCount': user_count,
+            'eventCount': event_count,
+            'majorDistribution': major_distribution,
+            'eventsPerMonth': events_per_month  # Include the new data in the response
+        })
     except Exception as e:
         print(str(e))
         return jsonify({'message': 'Error fetching statistics'}), 500
 
-    
 # Safely close connections/resources when the server is shutdown for any reason
 def shutdown():
     print("Flask is shutting down...")
