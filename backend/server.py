@@ -304,7 +304,6 @@ def events(conn, cursor):
     return get_formatted_query_results(cursor)
     
 
-
 """
 GET:
 Gets a particular event from the query params
@@ -333,6 +332,35 @@ def event(conn, cursor):
         body = json.loads(request.data.decode())
 
         necessary_fields = ["title", "startTime", "hostId"]
+
+'''
+POST:
+Adding an event to the database that a user creates 
+'''
+@app.route('/api/addEvent', methods=["POST"])
+@with_db_connection
+def addEvent(conn, cursor): 
+    #TODO: if not post, we should throw an error
+    if request.method == "POST": 
+        body = json.loads(request.data.decode()) 
+
+        title = body['title']
+        description = body['description']
+        start = body['start']
+        end = body['end']
+        imageURL = body['imageURL']
+        user = body['user']
+        
+        sql_query = """
+    INSERT INTO event (title, description, start, end, imageURL, user_id) 
+    VALUES (%s, %s, %s, %s, %s, %s)"""
+
+    # Execute the query with parameters from the request body
+    cursor.execute(sql_query, (title, description, start, end, imageURL, "test", 0))
+
+    # Commit the transaction to save changes
+    conn.commit()
+
 
 @app.route('/api/admin/statistics', methods=["GET"])
 @with_db_connection
