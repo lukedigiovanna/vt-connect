@@ -7,6 +7,7 @@ import { debounce } from "../constants/utils";
 import { updateState } from "../constants/utils";
 import { useUserAccount } from "./providers/UserAccountProvider";
 import { passwordRegex } from "../constants/password";
+import { UserAccount } from "../constants/models";
 
 export const SignUpForm = () => {
     const [pid, setPID] = useState("");
@@ -56,7 +57,7 @@ export const SignUpForm = () => {
     const onSubmit = async (e: any) => {
         e.preventDefault();
         try {
-            const user = (
+            const user0 = (
                 await apiPost("/signup", {
                     pid,
                     password,
@@ -66,7 +67,8 @@ export const SignUpForm = () => {
                     bio
                 })
             ).data;
-            login(user);
+
+            login(user0, { pid, password });
             navigate("/");
         } catch (err: any) {
             let message = "Something went wrong";

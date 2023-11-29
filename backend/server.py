@@ -207,8 +207,10 @@ def signup(conn, cursor):
                       VALUES (%s, %s, %s, %s, %s, %s, %s, false)""",
                       (pid, hash, f"{pid}@vt.edu", firstName, lastName, major, bio))
     conn.commit()
-
-    return 'Made user', 200
+    user = get_user(cursor, pid)
+    if not bcrypt.checkpw(password.encode('utf-8'), user['hash'].encode('utf-8')):
+        return 'Wrong password', 400
+    return user
 
 """
 Performs authentication to return a JWT that the client
