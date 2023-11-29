@@ -352,14 +352,16 @@ def addEvent(conn, cursor):
         user = body['user']
         
         sql_query = """
-    INSERT INTO event (title, description, start, end, imageURL, user_id) 
-    VALUES (%s, %s, %s, %s, %s, %s)"""
+    INSERT INTO event (id, title, description, start_time, end_time, image_url, host_pid, location_id) 
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"""
 
-    # Execute the query with parameters from the request body
-    cursor.execute(sql_query, (title, description, start, end, imageURL, "test", 0))
+        # Execute the query with parameters from the request body
+        cursor.execute(sql_query, (7, title, description, start, end, imageURL, "test", "0"))
 
-    # Commit the transaction to save changes
-    conn.commit()
+        # Commit the transaction to save changes
+        conn.commit()
+    
+    return user
 
 
 @app.route('/api/admin/statistics', methods=["GET"])

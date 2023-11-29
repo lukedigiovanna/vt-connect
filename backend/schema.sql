@@ -23,7 +23,7 @@ CREATE TABLE user_authentication (
 );
 
 CREATE TABLE event (
-    id INT NOT NULL,
+    id INT NOT NULL AUTO INCREMENT,
     start_time TIMESTAMP NOT NULL, -- always require a start time
     end_time TIMESTAMP, -- end time is optional
     title VARCHAR(250),
