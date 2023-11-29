@@ -15,7 +15,7 @@ load_dotenv()
 
 print("Connecting to database...")
 
-user, password = os.getenv("ELEPHANT_SQL_USERNAME"), os.getenv("ELEPHANT_SQL_PASSWORD")
+user, password = "rhbtxrau", "UEb8xzkihXobALYy_FVbOuP9OGmpIgGq"
 
 print(
     f'Loaded user, password: ({user}, {password[0:3] + "*" * (len(password) - 3)})')
@@ -249,6 +249,9 @@ def signup(conn, cursor):
         return 'Wrong password', 400
     return user
 
+def get_optional_boolean(body, name):
+    field = body.get(name)
+    return field if isinstance(field, bool) else None
 
 """
 Performs authentication to return a JWT that the client
@@ -271,14 +274,21 @@ def login(conn, cursor):
 
     print(pid, password)
 
+    admin_request = get_optional_boolean(body, 'isAdmin')
+
     user = get_user(cursor, pid)
 
     if user is None:
         return 'No user exists with that PID', 400
+    
 
     # otherwise compare the password against that users hash
     if not bcrypt.checkpw(password.encode('utf-8'), user['hash'].encode('utf-8')):
         return 'Wrong password', 400
+
+    if admin_request:
+        if  user.get("isAdmin") is None:
+            return 'Unauthorized client', 401
 
     return user
 

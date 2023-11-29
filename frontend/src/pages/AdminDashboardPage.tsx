@@ -7,6 +7,7 @@ import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import Swal from 'sweetalert2';
 import { passwordRegex } from '../constants/password';
+import {useNavigate} from "react-router-dom"
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -31,6 +32,7 @@ export const AdminDashboardPage = () => {
     const [statistics, setStatistics] = useState<CombinedStatistics | null>(null);
     const [status, setStatus] = useState<StatusType>('loading');
 
+    const navigate = useNavigate()
     const handleCreateAdmin = async() => {
         const { value: formValues } = await Swal.fire({
             title: 'Create Another Admin',
@@ -111,24 +113,54 @@ export const AdminDashboardPage = () => {
         return passwordRegex.test(password);
     };
     
+    
+      useEffect(() => {
+        const promptUser = async () => {
+          try {
+            // Prompt the user for username and password
+            const { value: formValues } = await Swal.fire({
+              title: 'Validate your credentials',
+              html:
+                '<input id="pid" class="swal2-input" placeholder="Hokie PID">' +
+                '<input id="password" type="password" class="swal2-input" placeholder="Password">',
+              focusConfirm: false,
+              preConfirm: () => {
+                const username = (document.getElementById('pid') as HTMLInputElement).value;
+                const password = (document.getElementById('password') as HTMLInputElement).value;
+    
+                return { username, password };
+              },
+            });
+    
+            // Use the entered credentials to make the API request
+            const result = await apiPost('/login', { pid: formValues.username, password: formValues.password, isAdmin: true });
 
-    useEffect(() => {
-        (async () => {
-            try {
-                const result = await apiGet('/admin/statistics');
-                setStatistics(result.data);
-                setStatus('success');
-            } catch (err: any) {
-                console.error('Failed to fetch data:', err);
-                setStatus('failure');
+
+            if (result.status !== 200) {
+                setStatus('failure')
             }
-        })();
-    }, []);
+            else {
+            const result = await apiGet('/admin/statistics');
+               
+            setStatistics(result.data);
+            setStatus('success');
+            }
+          } catch (err: any) {
+            console.error('Failed to fetch data:', err);
+            setStatus('failure');
+          }
+        };
+    
+        promptUser(); // Call the promptUser function
+      }, []); // Empty dependency array to run the effect only once
+    
+      // Rest of your component
 
-    const words = statistics?.majorDistribution.map(dist => {
+    
+
+      const words = statistics?.majorDistribution?.map(dist => {
         return { text: dist.major, value: dist.count };
-    });
-
+    }) || [];
     const options = {
         rotations: 2,
         rotationAngles: [-90, 0] as [number, number],
@@ -137,20 +169,21 @@ export const AdminDashboardPage = () => {
 
     const monthNames = ["January", "February", "March", "April", "May", "June",
                         "July", "August", "September", "October", "November", "December"];
+                        const histogramData = {
+                            labels: monthNames,
+                            datasets: [
+                                {
+                                    label: 'Number of Events',
+                                    data: monthNames.map(month => {
+                                        const event = statistics?.eventsPerMonth?.find(e => monthNames[e.month - 1] === month);
+                                        return event ? event.count : 0;
+                                    }) || [], // Provide a default value (empty array) if statistics?.eventsPerMonth is null or undefined
+                                    backgroundColor: 'rgba(123, 17, 58, 1)',
+                                },
+                            ],
+                        };
+                        
 
-    const histogramData = {
-        labels: monthNames,
-        datasets: [
-            {
-                label: 'Number of Events',
-                data: monthNames.map(month => {
-                    const event = statistics?.eventsPerMonth.find(e => monthNames[e.month - 1] === month);
-                    return event ? event.count : 0;
-                }),
-                backgroundColor: 'rgba(123, 17, 58, 1)',
-            },
-        ],
-    };
 
     const chartOptions = {
         scales: {
@@ -178,13 +211,25 @@ export const AdminDashboardPage = () => {
             </div>
         );
     }
-
     if (status === 'failure') {
+        Swal.fire({
+            icon: 'error',
+            title: 'You do not have access!',
+            text: 'You do not have permission to access this resource!',
+            showCancelButton: false,
+            confirmButtonText: 'Go to Login',
+            allowOutsideClick: false,   
+        }).then((result) => {
+            if (result.isConfirmed) {
+                navigate('/login');
+            }
+        });
+    
         return (
             <div>
                 <Background />
                 <Navbar />
-                <div>Failed to load data.</div>
+                {/* Render a placeholder UI or nothing, as the SweetAlert will handle the error message */}
             </div>
         );
     }
