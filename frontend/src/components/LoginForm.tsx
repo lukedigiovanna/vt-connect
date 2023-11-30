@@ -5,14 +5,20 @@ import { useMemo, useState } from "react";
 import { apiPost } from "../constants/api";
 import { useUserAccount } from "./providers/UserAccountProvider";
 import { UserAccount } from "../constants/models";
+import Cookies from "universal-cookie";
+
 
 export const LoginForm = () => {
     const [pid, setPID] = useState<string>("");
     const [password, setPassword] = useState<string>("");
+    const [isAdmin, setIsAdmin] = useState(false)
+
 
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     const { login } = useUserAccount();
+
+    const cookies = useMemo(() => new Cookies(), []);
 
     const onSubmit = async (e: any) => {
         e.preventDefault();
@@ -20,10 +26,17 @@ export const LoginForm = () => {
             const user = (
                 await apiPost("/login", {
                     pid,
-                    password
+                    password,
+                    isAdmin
                 })
             ).data as UserAccount;
-            login(user, { pid, password });
+
+            cookies.set("admin_status", user.isAdmin, {path:'/'})
+
+            setIsAdmin(user.isAdmin)
+            login(user, { pid, password, isAdmin});
+            console.log("Admin " + isAdmin)
+            
             navigate("/");
         } catch (err: any) {
             let message = "Something went wrong";

@@ -42,12 +42,14 @@ export const UserAccountProvider = (props: PropsWithChildren) => {
         setUser(null);
         cookies.remove("pid", { path: '/' });
         cookies.remove("password", { path: '/' });
+        cookies.remove("admin_status", {path:'/'}); 
     };
 
     useEffect(() => {
         // check if authentication credentials are available
         const pid = cookies.get("pid");
         const password = cookies.get("password");
+        const isAdmin = cookies.get("admin_status")
 
         if (pid !== undefined && password !== undefined ) {
             apiPost("/login", {
@@ -55,7 +57,7 @@ export const UserAccountProvider = (props: PropsWithChildren) => {
                 password
             }).then((res => {
                 const user = res.data
-                login(user, { pid, password });
+                login(user, { pid, password, isAdmin});
             })).catch(err => {
                 console.error(err);
             })

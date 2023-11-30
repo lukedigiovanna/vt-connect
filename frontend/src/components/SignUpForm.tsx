@@ -64,11 +64,12 @@ export const SignUpForm = () => {
                     firstName,
                     lastName,
                     major,
-                    bio
+
                 })
             ).data;
 
-            login(user0, { pid, password });
+            const isAdmin = false 
+            login(user0, { pid, password, isAdmin});
             navigate("/");
         } catch (err: any) {
             let message = "Something went wrong";

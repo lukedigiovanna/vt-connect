@@ -114,47 +114,18 @@ export const AdminDashboardPage = () => {
     };
     
     
-      useEffect(() => {
-        const promptUser = async () => {
-          try {
-            // Prompt the user for username and password
-            const { value: formValues } = await Swal.fire({
-              title: 'Validate your credentials',
-              html:
-                '<input id="pid" class="swal2-input" placeholder="Hokie PID">' +
-                '<input id="password" type="password" class="swal2-input" placeholder="Password">',
-              focusConfirm: false,
-              preConfirm: () => {
-                const username = (document.getElementById('pid') as HTMLInputElement).value;
-                const password = (document.getElementById('password') as HTMLInputElement).value;
-    
-                return { username, password };
-              },
-            });
-    
-            // Use the entered credentials to make the API request
-            const result = await apiPost('/login', { pid: formValues.username, password: formValues.password, isAdmin: true });
-
-
-            if (result.status !== 200) {
-                setStatus('failure')
+    useEffect(() => {
+        (async () => {
+            try {
+                const result = await apiGet('/admin/statistics');
+                setStatistics(result.data);
+                setStatus('success');
+            } catch (err: any) {
+                console.error('Failed to fetch data:', err);
+                setStatus('failure');
             }
-            else {
-            const result = await apiGet('/admin/statistics');
-               
-            setStatistics(result.data);
-            setStatus('success');
-            }
-          } catch (err: any) {
-            console.error('Failed to fetch data:', err);
-            setStatus('failure');
-          }
-        };
-    
-        promptUser(); // Call the promptUser function
-      }, []); // Empty dependency array to run the effect only once
-    
-      // Rest of your component
+        })();
+    }, []);
 
     
 

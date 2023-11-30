@@ -1,6 +1,7 @@
 export interface UserAuth {
     pid: string;
     password: string;
+    isAdmin: boolean;
 }
 
 export interface UserAccount {
@@ -9,6 +10,7 @@ export interface UserAccount {
     lastName: string;
     major: string | null;
     bio: string | null;
+    isAdmin: boolean; 
 }
 
 export interface Event {
