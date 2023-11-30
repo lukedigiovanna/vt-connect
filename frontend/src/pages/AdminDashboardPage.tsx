@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo} from 'react';
 import { apiGet, apiPost } from "../constants/api";
 import { Navbar } from "../components/Navbar";
 import { Background } from "../components/Background";
@@ -8,6 +8,9 @@ import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Toolti
 import Swal from 'sweetalert2';
 import { passwordRegex } from '../constants/password';
 import {useNavigate} from "react-router-dom"
+import Cookies from 'universal-cookie';
+
+
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -113,13 +116,24 @@ export const AdminDashboardPage = () => {
         return passwordRegex.test(password);
     };
     
-    
+    const cookies = useMemo(() => new Cookies(), []);
+
     useEffect(() => {
+
         (async () => {
             try {
+                const isAdmin = cookies.get("admin_status")
+
+                if (!isAdmin) {
+                    setStatus("failure")
+
+                }
+                else {
+
                 const result = await apiGet('/admin/statistics');
                 setStatistics(result.data);
                 setStatus('success');
+                }
             } catch (err: any) {
                 console.error('Failed to fetch data:', err);
                 setStatus('failure');
