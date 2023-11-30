@@ -249,9 +249,11 @@ def signup(conn, cursor):
         return 'Wrong password', 400
     return user
 
+
 def get_optional_boolean(body, name):
     field = body.get(name)
     return field if isinstance(field, bool) else None
+
 
 """
 Performs authentication to return a JWT that the client
@@ -271,26 +273,23 @@ def login(conn, cursor):
         return 'Missing a required request parameter', 400
 
     pid, password = body['pid'], body['password']
-
-    print(pid, password)
-
     admin_request = get_optional_boolean(body, 'isAdmin')
 
     user = get_user(cursor, pid)
 
     if user is None:
         return 'No user exists with that PID', 400
-    
+
 
     # otherwise compare the password against that users hash
     if not bcrypt.checkpw(password.encode('utf-8'), user['hash'].encode('utf-8')):
         return 'Wrong password', 400
 
     if admin_request:
-        if  user.get("isAdmin") is None:
+        if user.get("isAdmin") is None:
             return 'Unauthorized client', 401
 
-    return user
+    return jsonify(user), 200
 
 
 @app.route('/api/signup-admin', methods=['POST'])
@@ -322,7 +321,6 @@ Ability to change password
 def change_password(conn, cursor):
     body = json.loads(request.data.decode())
 
-    print("body " + str(body))
 
     necessary_fields = ['pid', 'new_password']
     if not has_all_fields(body, necessary_fields):
@@ -332,7 +330,6 @@ def change_password(conn, cursor):
     pid, new_password = body['pid'], body['new_password']
     user = get_user(pid)
 
-    print("user is " + str(user))
 
     if user is None:
         return 'No user exists with that pid', 400
