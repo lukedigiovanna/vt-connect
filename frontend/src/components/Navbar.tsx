@@ -63,7 +63,7 @@ export const Navbar = () => {
                         }}
                     >
                         
-                        <img src="vt-logo.png" alt="VT" className="w-14" />{" "}
+                        <img src="/vt-logo.png" alt="VT" className="w-14" />
                         Connect
                     </h1>
 

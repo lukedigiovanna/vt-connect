@@ -389,7 +389,7 @@ creates an event with the given information
 """
 
 
-@app.route('/api/event', methods=["GET, POST"])
+@app.route('/api/event', methods=["GET", "POST"])
 @with_db_connection
 def event(conn, cursor):
     if request.method == "GET":
@@ -441,6 +441,41 @@ def admin_statistics(conn, cursor):
     except Exception as e:
         print(str(e))
         return jsonify({'message': 'Error fetching statistics'}), 500
+    
+
+@app.route('/api/event-attendee', methods=['POST'])
+@with_db_connection
+def sign_up_for_event(conn, cursor):
+    try:
+        body = request.get_json()
+        print(body)
+        user_pid = body['userPid']
+        event_id = body['eventId']
+
+        if not user_exists(cursor, user_pid):
+            return jsonify({'message': 'User not found'}), 404
+
+        # Check if the event exists
+        cursor.execute("SELECT * FROM event WHERE id = %s", (event_id,))
+        if cursor.fetchone() is None:
+            return jsonify({'message': 'Event not found'}), 404
+
+        # Check if the user is already signed up for the event
+        cursor.execute("SELECT * FROM event_attendee WHERE user_pid = %s AND event_id = %s", (user_pid, event_id))
+        if cursor.fetchone() is not None:
+            return jsonify({'message': 'User already signed up for this event'}), 400
+
+        # Sign up the user for the event
+        cursor.execute("INSERT INTO event_attendee (user_pid, event_id) VALUES (%s, %s)", (user_pid, event_id))
+        conn.commit()
+
+        return jsonify({'message': 'Successfully signed up for the event'}), 200
+
+    except Exception as e:
+        print(str(e))
+        conn.rollback()
+        return jsonify({'message': 'An error occurred while signing up for the event'}), 500
+
 
 # Safely close connections/resources when the server is shutdown for any reason
 
