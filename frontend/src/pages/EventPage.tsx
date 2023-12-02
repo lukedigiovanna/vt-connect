@@ -8,7 +8,6 @@ import { useUserAccount } from "../components/providers/UserAccountProvider";
 import Cookies from "universal-cookie";
 import Swal from "sweetalert2";
 
-
 type StatusType = 'loading' | 'success' | 'failure';
 
 export const EventPage = () => {
@@ -16,7 +15,6 @@ export const EventPage = () => {
     const [event, setEvent] = useState<Event | null>(null);
     const [status, setStatus] = useState<StatusType>("loading");
     const { user } = useUserAccount(); 
-
 
     const cookies = useMemo(() => new Cookies(), []);
 
@@ -51,10 +49,7 @@ export const EventPage = () => {
             'title': 'Oops', 
         'text': "Something went wrong!"})
             }
-
-
         } catch (error) {
-            
             Swal.fire({'icon': 'error', 
             'title': 'Oops', 
         'text': "Something went wrong!"})
@@ -63,8 +58,6 @@ export const EventPage = () => {
         }
         
     }
-
-    
 
     useEffect(() => {
         (async () => {
@@ -107,42 +100,65 @@ export const EventPage = () => {
             <Background />
             <Navbar />
             <div className="pt-16">
-    {status === "loading" && <p className="text-center">Loading...</p>}
-    {status === "success" && event && (
-        <div className="mx-auto max-w-4xl bg-white/80 rounded shadow-lg p-6 mt-6">
-            <h1 className="text-3xl font-bold mb-2">{event.title}</h1>
-            <div className="flex flex-row">
-                <p className="mb-4">{event.description}</p>
                 {
-                    event.imageUrl && (
-                    <img
-                        src={event.imageUrl}
-                        alt=""
-                        className="w-64 self-end"
-                    />
-                )}
-            </div>
-            <p className="mb-2"><strong>Start Time:</strong> {new Date(event.startTime).toLocaleString()}</p>
-            {event.endTime && <p><strong>End Time:</strong> {new Date(event.endTime).toLocaleString()}</p>}
-            <button
-                onClick={signUpForEvent}
-                disabled={!user}
-                className={`primary-button-colors mt-4 mr-2 px-4 py-2 rounded ${!user ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                Sign Up for Event
-            </button>
-            {adminStatus && (
-  <button
-    onClick={deleteEvent}
-    className="primary-button-colors mt-4 px-4 py-2 rounded"
-  >
-    Remove Event
-  </button>
-)}
+                    status === "loading" && 
+                    <p className="text-center">Loading...</p>
+                }
+                {
+                    status === "success" && event &&
+                    <div className="mx-auto max-w-4xl bg-white/80 rounded shadow-lg p-6 mt-6">
+                        <h1 className="text-3xl font-bold mb-2">{event.title}</h1>
+                        <div className="flex flex-row">
+                            <div>
+                                <p className="mb-4">
+                                    {event.description}
+                                </p>
+                                <p>
+                                    <strong>Start Time:</strong> {new Date(event.startTime).toLocaleString()}
+                                </p>
+                                {
+                                    event.endTime && 
+                                    <p>
+                                        <strong>End Time:</strong> {new Date(event.endTime).toLocaleString()}
+                                    </p>
+                                }
+                                <p className="mt-2">
+                                    <strong>Hosted By: </strong>
+                                    <a href={`/user/${event.hostPid}`} className="text-blue-800 font-semibold hover:text-blue-400 active:text-red-300 transition"> {event.hostPid} </a>
+                                </p>
+                            </div>
+                            {
+                                event.imageUrl && (
+                                <img
+                                    src={event.imageUrl}
+                                    alt=""
+                                    className="w-64 self-end"
+                                />
+                            )}
+                        </div>
+                        
+                        <button
+                            onClick={signUpForEvent}
+                            disabled={!user}
+                            className={`primary-button-colors mt-4 mr-2 px-4 py-2 rounded ${!user ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                            Sign Up for Event
+                        </button>
+                        {adminStatus && (
+                            <button
+                                onClick={deleteEvent}
+                                className="primary-button-colors mt-4 px-4 py-2 rounded"
+                            >
+                                Remove Event
+                            </button>
+                        )}
 
-        </div>
-    )}
-    {status === "failure" && <p className="text-center mt-6">No event found or something went wrong.</p>}
-</div>
+                    </div>
+                }
+                {
+                    status === "failure" && 
+                    <p className="text-center mt-6">No event found or something went wrong.</p>
+                }
+            </div>
         </div>
     );
 };

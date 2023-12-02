@@ -117,7 +117,7 @@ export const ProfilePage = () => {
     const handleSave = async () => {
         try {
             console.log("clicked save")
-            const response = await apiPost("/update-user", { pid, major });
+            await apiPost("/update-user", { pid, major });
 
             if (user) {
                 const updatedUser = {
