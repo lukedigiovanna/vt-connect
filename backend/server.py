@@ -400,7 +400,7 @@ def events(conn, cursor):
     cursor.execute(
         'SELECT * FROM event ORDER BY start_time LIMIT 300 OFFSET 0')
     return get_formatted_query_results(cursor)
-
+    
 
 """
 GET:
@@ -432,6 +432,36 @@ def event(conn, cursor):
         body = json.loads(request.data.decode())
 
         necessary_fields = ["title", "startTime", "hostId"]
+
+'''
+POST:
+Adding an event to the database that a user creates 
+'''
+@app.route('/api/addEvent', methods=["POST"])
+@with_db_connection
+def addEvent(conn, cursor): 
+    #TODO: if not post, we should throw an error
+    if request.method == "POST": 
+        body = json.loads(request.data.decode()) 
+
+        title = body['title']
+        description = body['description']
+        start = body['start']
+        end = body['end']
+        imageURL = body['imageURL']
+        user = body['user']
+        
+        sql_query = """
+    INSERT INTO event (title, description, start_time, end_time, image_url, host_pid, location_id) 
+    VALUES (%s, %s, %s, %s, %s, %s, %s)"""
+
+        # Execute the query with parameters from the request body
+        cursor.execute(sql_query, (title, description, start, end, imageURL, "test", "0"))
+
+        # Commit the transaction to save changes
+        conn.commit()
+    
+    return user
 
 
 @app.route('/api/admin/statistics', methods=["GET"])
