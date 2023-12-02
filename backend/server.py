@@ -177,6 +177,30 @@ def update_user(conn, cursor):
         return jsonify({'message': 'An error occurred while updating the user'}), 500
 
 
+"""""
+Deletes event which only admins can do 
+"""""
+
+@app.route("/api/deleteEvent", methods=['POST'])
+@with_db_connection
+def deleteEvent(conn, cursor):
+
+    try: 
+        body = request.get_json()
+        event_id = body['eventId']
+
+        cursor.execute("DELETE FROM event_attendee WHERE event_id=%s",event_id)
+        cursor.execute("DELETE FROM event WHERE id=%s",event_id)
+
+        conn.commit() 
+
+        return jsonify({'message': 'Event deleted successfully'}), 200
+    except Exception as e: 
+        print("Error " + str(e))
+        return jsonify({'message': 'An error occured when attempting to delete the event'}), 500 
+
+
+
 """
 Takes in the pid of a user and removes them from the database
 """
