@@ -111,7 +111,17 @@ export const EventPage = () => {
     {status === "success" && event && (
         <div className="mx-auto max-w-4xl bg-white/80 rounded shadow-lg p-6 mt-6">
             <h1 className="text-3xl font-bold mb-2">{event.title}</h1>
-            <p className="mb-4">{event.description}</p>
+            <div className="flex flex-row">
+                <p className="mb-4">{event.description}</p>
+                {
+                    event.imageUrl && (
+                    <img
+                        src={event.imageUrl}
+                        alt=""
+                        className="w-64 self-end"
+                    />
+                )}
+            </div>
             <p className="mb-2"><strong>Start Time:</strong> {new Date(event.startTime).toLocaleString()}</p>
             {event.endTime && <p><strong>End Time:</strong> {new Date(event.endTime).toLocaleString()}</p>}
             <button
