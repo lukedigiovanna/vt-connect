@@ -24,7 +24,6 @@ export const EventPage = () => {
     const navigate = useNavigate();
 
     const deleteEvent = () => {
-        // handle deleting event here if admin status is true 
         Swal.fire({
             title: 'Are you sure?',
             text: 'You won\'t be able to revert this!',
@@ -35,7 +34,6 @@ export const EventPage = () => {
             confirmButtonText: 'Yes, delete it!'
         }).then((result) => {
             if (result.isConfirmed) {
-                // If the user clicks "Yes, delete it!", send a request and go back to the previous page
                 sendDeleteRequest();
             }
         });
