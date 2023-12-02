@@ -33,10 +33,8 @@ export const NewEventPage = () => {
                     </span>
                     <input type="datetime-local" className="mb-1 rounded px-2" />
                 </div>
-                <div>
-                    <UploadImage />
-                </div>
-                <div className="flex justify-end">
+                <input placeholder="image url" className="border px-3 py-1 rounded outline-gray-800 active:outline-1 mb1" />
+                <div className="flex justify-end mt-2">
                     <button className="primary-button-colors px-4 py-2 text-sm rounded">
                         Submit
                     </button>

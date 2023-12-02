@@ -39,15 +39,15 @@ export const HomePage = () => {
             <Background />
             <Navbar />
 
-            <div className="mx-auto my-0 max-w-4xl bg-gray-50/90 px-8 py-4 grid grid-rows-1 grid-cols-[1fr_4fr]">
-                <div>
-                    <button onClick={sortEventsAlphabetically} className="primary-button-colors px-6 py-8 text-sm rounded">
+            <div className="mx-auto my-0 max-w-4xl bg-gray-50/50 px-8 py-4 grid grid-rows-1 grid-cols-[1fr_4fr]">
+                <div className="flex flex-col">
+                    <button onClick={sortEventsAlphabetically} className="primary-button-colors py-2 text-sm rounded">
                         Sort Alphabetically
                     </button>
-                    <button onClick={sortEventsByDate} className="primary-button-colors mt-8 px-10 py-5 text-sm rounded">
-                        Sort by Date (Newest First)
+                    <button onClick={sortEventsByDate} className="primary-button-colors mt-4 text-sm rounded">
+                        Sort by Date (Latest First)
                     </button>
-                    <button onClick={sortEventsByDateReverse} className="primary-button-colors mt-8 px-10 py-8 text-sm rounded">
+                    <button onClick={sortEventsByDateReverse} className="primary-button-colors mt-4 text-sm rounded">
                         Sort by Date (Oldest First)
                     </button>
                 </div>
