@@ -64,6 +64,7 @@ export const SignUpForm = () => {
                     firstName,
                     lastName,
                     major,
+                    bio 
 
                 })
             ).data;

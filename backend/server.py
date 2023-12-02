@@ -15,7 +15,7 @@ load_dotenv()
 
 print("Connecting to database...")
 
-user, password = os.getenv("ELEPHANT_SQL_USERNAME"), os.getenv("ELEPHANT_SQL_PASSWORD")
+user, password = "rhbtxrau", "UEb8xzkihXobALYy_FVbOuP9OGmpIgGq"
 
 print(
     f'Loaded user, password: ({user}, {password[0:3] + "*" * (len(password) - 3)})')
@@ -80,6 +80,8 @@ def with_db_connection(f):
 """
 Returns the public HTML of the page
 """
+
+
 @app.route('/')
 def root():
     return send_from_directory(app.static_folder, "index.html")
@@ -100,6 +102,8 @@ def has_all_fields(object, fields, require_content=True):
 Returns a dictionary/JSON representation of the query results, which
 is useful for returning and processing the results on the frontend.
 """
+
+
 def get_formatted_query_results(cursor):
     results = cursor.fetchall()
     column_names = [desc[0] for desc in cursor.description]
@@ -122,6 +126,8 @@ def get_user(cursor, pid):
 """
 Checks if a user with the given PID already exists.
 """
+
+
 def user_exists(cursor, pid):
     cursor.execute(f"SELECT * FROM user_account WHERE pid='{pid}'")
     result = cursor.fetchall()
@@ -145,6 +151,8 @@ def get_admin_attrib(body):
 Takes in pid and major to update the major of an user based on 
 the passed in PID
 """
+
+
 @app.route('/api/update-user', methods=["POST"])
 @with_db_connection
 def update_user(conn, cursor):
@@ -168,29 +176,36 @@ def update_user(conn, cursor):
         print(str(e))  # log the error for debugging purposes
         return jsonify({'message': 'An error occurred while updating the user'}), 500
 
+
 """""
 Deletes event which only admins can do 
 """""
+
+
 @app.route("/api/deleteEvent", methods=['POST'])
 @with_db_connection
 def delete_event(conn, cursor):
-    try: 
+    try:
         body = request.get_json()
         event_id = body['eventId']
 
-        cursor.execute("DELETE FROM event_attendee WHERE event_id=%s",event_id)
-        cursor.execute("DELETE FROM event WHERE id=%s",event_id)
+        cursor.execute(
+            "DELETE FROM event_attendee WHERE event_id=%s", event_id)
+        cursor.execute("DELETE FROM event WHERE id=%s", event_id)
 
-        conn.commit() 
+        conn.commit()
 
         return jsonify({'message': 'Event deleted successfully'}), 200
-    except Exception as e: 
+    except Exception as e:
         print("Error " + str(e))
-        return jsonify({'message': 'An error occured when attempting to delete the event'}), 500 
+        return jsonify({'message': 'An error occured when attempting to delete the event'}), 500
+
 
 """
 Takes in the pid of a user and removes them from the database
 """
+
+
 @app.route('/api/deleteUser', methods=["POST"])
 @with_db_connection
 def delete_user(conn, cursor):
@@ -221,6 +236,8 @@ default values when necessary.
 
 Will return an error status if any fields are not given
 """
+
+
 @app.route('/api/signup', methods=["POST"])
 @with_db_connection
 def signup(conn, cursor):
@@ -239,6 +256,7 @@ def signup(conn, cursor):
         return 'A user with that pid already exists', 400
 
     # check for optional fields: major, bio, admin
+
 
     major, bio, is_admin = get_optional_attrib(
         body, 'major'), get_optional_attrib(body, 'bio'), get_admin_attrib(body)
@@ -260,6 +278,7 @@ def signup(conn, cursor):
 def get_optional_boolean(body, name):
     field = body.get(name)
     return field if isinstance(field, bool) else None
+
 
 @app.route('/api/login', methods=["POST"])
 @with_db_connection
@@ -313,11 +332,12 @@ def signup_admin(conn, cursor):
 """
 Ability to change password 
 """
+
+
 @app.route("/api/change-password", methods=['POST'])
 @with_db_connection
 def change_password(conn, cursor):
     body = json.loads(request.data.decode())
-
 
     necessary_fields = ['pid', 'new_password']
     if not has_all_fields(body, necessary_fields):
@@ -346,9 +366,12 @@ def change_password(conn, cursor):
         conn.rollback()
         return 'Error updating password', 500
 
+
 """
 Gets a JSON array of all registered users
 """
+
+
 @app.route('/api/users', methods=["GET"])
 @with_db_connection
 def users(conn, cursor):
@@ -356,30 +379,36 @@ def users(conn, cursor):
     cursor.execute('SELECT * FROM user_account LIMIT 300 OFFSET 0')
     return get_formatted_query_results(cursor)
 
+
 """
 Gets JSON of a given user's PID
 """
+
+
 @app.route('/api/user', methods=["GET"])
 @with_db_connection
 def user_with_id(conn, cursor):
     pid = request.args.get('pid')
     if pid == None:
         return "Must specify a user pid", 400
-    
+
     user = get_user(cursor, pid)
     if user == None:
         return "User does not exist", 400
     else:
         return user
 
+
 """
 Gets a JSON array of the next events sorted by start time in ascending order (oldest first)
 """
+
+
 @app.route('/api/events', methods=["GET"])
 @with_db_connection
 def events(conn, cursor):
     pid = request.args.get('hostedBy')
-    if pid is not None:        
+    if pid is not None:
         cursor.execute(
             "SELECT * FROM event WHERE host_pid=%s ORDER BY start_time LIMIT 300 OFFSET 0",
             (pid,)
@@ -388,7 +417,7 @@ def events(conn, cursor):
         cursor.execute(
             'SELECT * FROM event ORDER BY start_time LIMIT 300 OFFSET 0')
     return get_formatted_query_results(cursor)
-    
+
 
 """
 GET:
@@ -399,6 +428,8 @@ Example: /api/event?id=3uudiwo32093jfdalwo3io
 POST:
 creates an event with the given information
 """
+
+
 @app.route('/api/event', methods=["GET", "POST"])
 @with_db_connection
 def event(conn, cursor):
@@ -419,16 +450,19 @@ def event(conn, cursor):
 
         necessary_fields = ["title", "startTime", "hostId"]
 
+
 '''
 POST:
 Adding an event to the database that a user creates 
 '''
+
+
 @app.route('/api/addEvent', methods=["POST"])
 @with_db_connection
-def addEvent(conn, cursor): 
-    #TODO: if not post, we should throw an error
-    if request.method == "POST": 
-        body = json.loads(request.data.decode()) 
+def addEvent(conn, cursor):
+    # TODO: if not post, we should throw an error
+    if request.method == "POST":
+        body = json.loads(request.data.decode())
 
         title = body['title']
         description = body['description']
@@ -436,17 +470,18 @@ def addEvent(conn, cursor):
         end = body['end']
         imageURL = body['imageURL']
         user = body['user']
-        
+
         sql_query = """
     INSERT INTO event (title, description, start_time, end_time, image_url, host_pid, location_id) 
     VALUES (%s, %s, %s, %s, %s, %s, %s)"""
 
         # Execute the query with parameters from the request body
-        cursor.execute(sql_query, (title, description, start, end, imageURL, "test", "0"))
+        cursor.execute(sql_query, (title, description,
+                       start, end, imageURL, "test", "0"))
 
         # Commit the transaction to save changes
         conn.commit()
-    
+
     return user
 
 
@@ -481,7 +516,7 @@ def admin_statistics(conn, cursor):
     except Exception as e:
         print(str(e))
         return jsonify({'message': 'Error fetching statistics'}), 500
-    
+
 
 @app.route('/api/event-attendee', methods=['POST'])
 @with_db_connection
@@ -501,12 +536,14 @@ def sign_up_for_event(conn, cursor):
             return jsonify({'message': 'Event not found'}), 404
 
         # Check if the user is already signed up for the event
-        cursor.execute("SELECT * FROM event_attendee WHERE user_pid = %s AND event_id = %s", (user_pid, event_id))
+        cursor.execute(
+            "SELECT * FROM event_attendee WHERE user_pid = %s AND event_id = %s", (user_pid, event_id))
         if cursor.fetchone() is not None:
             return jsonify({'message': 'User already signed up for this event'}), 400
 
         # Sign up the user for the event
-        cursor.execute("INSERT INTO event_attendee (user_pid, event_id) VALUES (%s, %s)", (user_pid, event_id))
+        cursor.execute(
+            "INSERT INTO event_attendee (user_pid, event_id) VALUES (%s, %s)", (user_pid, event_id))
         conn.commit()
 
         return jsonify({'message': 'Successfully signed up for the event'}), 200
@@ -517,9 +554,12 @@ def sign_up_for_event(conn, cursor):
         return jsonify({'message': 'An error occurred while signing up for the event'}), 500
 
 # Safely close connections/resources when the server is shutdown for any reason
+
+
 def shutdown():
     print("Flask is shutting down...")
     db_pool.closeall()
+
 
 atexit.register(shutdown)
 
