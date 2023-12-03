@@ -7,6 +7,10 @@ import "../styles/ProfilePage.css";
 import { apiPost } from "../constants/api";
 import Swal from "sweetalert2";
 import { passwordRegex } from "../constants/password";
+import { updateState } from "../constants/utils";
+import { majors } from "../constants/data";
+
+
 
 export const ProfilePage = () => {
     const { user, logout, login } = useUserAccount();
@@ -202,6 +206,9 @@ export const ProfilePage = () => {
         else if (name === "bio") {
             setBio(value)
         }
+        else if (name === "major") {
+            setMajor(value)
+        }
     };
 
    
@@ -212,95 +219,107 @@ export const ProfilePage = () => {
             <div className="profile-container">
                 <h1>Your Profile</h1>
                 {user && (
-                    <>
-                        <div className="profile-details">
-                            {editMode ? (
-                                <>
-                                    <div className="input-container">
-                                        <label>
-                                            <strong>PID:</strong>
-                                            <input
-                                                type="text"
-                                                value={pid}
-                                                name="pid"
-                                                onChange={handleInputChange}
-                                            />
-                                        </label>
-                                        <label>
-                                            <strong>Major:</strong>
-                                            <input
-                                                type="text"
-                                                value={major}
-                                                name="major"
-                                                onChange={handleInputChange}
-                                            />
-                                        </label>
+                    <div className="profile-details">
+                        {editMode ? (
+                            <>
+                                <div className="input-container">
+                                    <label>
+                                        <strong>PID:</strong>
+                                        <input
+                                            type="text"
+                                            value={pid}
+                                            name="pid"
+                                            onChange={handleInputChange}
+                                        />
+                                    </label>
+                                </div>
+                                <div className="input-container">
+                                    <label>
+                                        <strong>Major:</strong>
+                                        <select
+                                            name="majors"
+                                            className="form-input"
+                                            defaultValue={"default"}
+                                            onChange={updateState(setMajor)}
+                                        >
+                                            <option disabled value="default">
+                                                {user.major}
+                                            </option>
+                                            {majors.map((majorOption) => (
+                                                <option value={majorOption} key={majorOption}>
+                                                    {majorOption}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </label>
+                                </div>
+                                <div className="input-container">
+                                    <label>
+                                        <strong>BIO:</strong>
+                                        <input
+                                            type="text"
+                                            value={bio}
+                                            name="bio"
+                                            onChange={handleInputChange}
+                                        />
+                                    </label>
+                                </div>
+                                <div className="empty-line" style={{ marginBottom: '20px' }}></div>
 
-                                        <label>
-                                            <strong>BIO:</strong>
-                                            <input
-                                                type="text"
-                                                value={bio}
-                                                name="bio"
-                                                onChange={handleInputChange}
-                                            />
-                                        </label>
-                                    </div>
+                                <button
+                                    className="button red-button"
+                                    onClick={handleChangePassword}
+                                >
+                                    Change Password
+                                </button>
+                                <button
+                                    className="button save-button"
+                                    onClick={handleSave}
+                                >
+                                    Save
+                                </button>
+                                <button
+                                    className="button cancel-button"
+                                    onClick={handleCancel}
+                                >
+                                    Cancel
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                <p>
+                                    <strong>PID:</strong> {user.pid}
+                                </p>
+                                <p>
+                                    <strong>Major:</strong> {user.major}
+                                </p>
+                                <p>
+                                    <strong>BIO:</strong> {user.bio}
+                                </p>
 
-                                    <button
-                                        className="button red-button"
-                                        onClick={handleChangePassword}
-                                    >
-                                        Change Password
-                                    </button>
-
-                                    <button
-                                        className="button save-button"
-                                        onClick={handleSave}
-                                    >
-                                        Save
-                                    </button>
-                                    <button
-                                        className="button cancel-button"
-                                        onClick={handleCancel}
-                                    >
-                                        Cancel
-                                    </button>
-                                </>
-                            ) : (
-                                <>
-                                    <p>
-                                        <strong>PID:</strong> {user.pid}
-                                    </p>
-                                    <p>
-                                        <strong>Major:</strong> {user.major}
-                                    </p>
-                                    <p>
-                                        <strong>BIO:</strong> {user.bio}
-                                    </p>
-                                    <button
-                                        className="button edit-button"
-                                        onClick={handleEdit}
-                                    >
-                                        Edit
-                                    </button>
-                                    <button
-                                        className="delete-button"
-                                        onClick={handleDeleteAccount}
-                                    >
-                                        Delete My Account
-                                    </button>
-                                    <button
-                                        className="delete-button"
-                                        onClick={handleViewEvents}
-                                        style={{ marginTop: '20px', backgroundColor:"blue"}}
-                                    >
-                                        View Signed Up Events
-                                    </button>
-                                </>
-                            )}
-                        </div>
-                    </>
+                                <br/>
+                                <button
+                                    className="button edit-button"
+                                    onClick={handleEdit}
+                                >
+                                    Edit
+                                </button>
+                                <button
+                                    className="delete-button"
+                                    onClick={handleDeleteAccount}
+                                >
+                                    Delete My Account
+                                </button>
+                                <button
+                                    className="delete-button"
+                                    onClick={handleViewEvents}
+                                    style={{ marginTop: '20px', backgroundColor: "blue" }}
+                                >
+                                    View Signed Up Events
+                                </button>
+                            </>
+                        )}
+                    </div>
                 )}
             </div>
         </>
