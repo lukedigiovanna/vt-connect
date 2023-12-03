@@ -161,9 +161,11 @@ def update_user(conn, cursor):
         pid = body['pid']
         major = body['major']
 
+        bio = body['bio']
+
         # update user's major in the database
         cursor.execute(
-            "UPDATE user_account SET major = %s WHERE pid = %s", (major, pid))
+            "UPDATE user_account SET major = %s, bio = %s WHERE pid = %s", (major, bio, pid))
         conn.commit()
 
         # check the number of rows affected
@@ -175,6 +177,48 @@ def update_user(conn, cursor):
     except Exception as e:
         print(str(e))  # log the error for debugging purposes
         return jsonify({'message': 'An error occurred while updating the user'}), 500
+
+
+"""""
+Given a user'd pid number, return all their events they are subscribed to 
+"""""
+
+
+@app.route("/api/display_event_from_id", methods=['POST'])
+@with_db_connection
+def display_events_from_user(conn, cursor):
+    try:
+        body = request.get_json()
+        pid = body["pid"]
+
+
+        cursor.execute(
+    "SELECT event.* FROM event_attendee JOIN event ON event_attendee.event_id = event.id WHERE event_attendee.user_pid = %s",
+    (pid,)
+)
+
+        # Fetch all rows as a list of dictionaries
+        events = cursor.fetchall()
+
+        column_names = [desc[0] for desc in cursor.description]
+
+        events_list = []
+        for event in events:
+            event_name = event[column_names.index('title')]  # Replace 'title' with the actual column name for event name
+            host_pid = event[column_names.index('host_pid')]  # Replace 'host_pid' with the actual column name for host pid
+            events_list.append((event_name, host_pid))
+
+
+
+        conn.commit()
+
+        # Convert the list of tuples to a list of dictionaries
+
+        return jsonify(events_list), 200
+
+    except Exception as e:
+        print("Error " + str(e))
+        return jsonify({"message": f"An error occurred: {str(e)}"}), 500
 
 
 """""
@@ -256,7 +300,6 @@ def signup(conn, cursor):
         return 'A user with that pid already exists', 400
 
     # check for optional fields: major, bio, admin
-
 
     major, bio, is_admin = get_optional_attrib(
         body, 'major'), get_optional_attrib(body, 'bio'), get_admin_attrib(body)

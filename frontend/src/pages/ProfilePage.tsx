@@ -8,13 +8,13 @@ import { apiPost } from "../constants/api";
 import Swal from "sweetalert2";
 import { passwordRegex } from "../constants/password";
 
-
 export const ProfilePage = () => {
     const { user, logout, login } = useUserAccount();
     const navigate = useNavigate();
     const [editMode, setEditMode] = useState(false);
     const [pid, setPID] = useState(user?.pid || "");
     const [major, setMajor] = useState(user?.major || "");
+    const [bio, setBio] = useState(user?.bio || "")
 
     const handleDeleteAccount = async (e: any) => {
         e.preventDefault();
@@ -32,8 +32,60 @@ export const ProfilePage = () => {
     const handleEdit = () => {
         setEditMode(true);
     };
-
  
+    function getEventsHtml(eventsList: Array<[string, string]>) {
+        let html = '<div>';
+
+        if (eventsList.length === 0) {
+
+            html += `<p>You have not signed up for any events yet! </p>`
+        }
+
+        else {
+
+        eventsList.forEach(event => {
+            const [eventTitle, eventHost] = event;
+            html += `<div class="event-card">
+            <div class="event-info">
+                <strong>Title: ${eventTitle}</strong><br>Host: ${eventHost}
+            </div>
+            <div class="event-separator"></div>
+        </div>`;
+            });
+        }
+
+        html += '</div>';
+
+        return html;
+    }
+
+
+    const handleViewEvents = async () => {
+        try {
+            // Fetch the list of events from the endpoint
+            const pid = user?.pid 
+            const response = await apiPost('/display_event_from_id', {pid});
+            const events = await response.data
+
+                    
+            Swal.fire({
+                title: 'Events Signed Up',
+                html: getEventsHtml(events),
+                confirmButtonText: 'Close',
+                showCloseButton: true,
+            });
+            
+    
+        } catch (error) {
+            console.error('Error fetching or displaying events:', error);
+            // Handle errors or display an error message
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Failed to fetch events. Please try again.',
+            });
+        }
+    };
     const handleChangePassword = async () => {
         const { value: formValues } = await Swal.fire({
             title: 'Change Password',
@@ -116,14 +168,14 @@ export const ProfilePage = () => {
 
     const handleSave = async () => {
         try {
-            console.log("clicked save")
-            await apiPost("/update-user", { pid, major });
+            await apiPost("/update-user", { pid, major, bio});
 
             if (user) {
                 const updatedUser = {
                     ...user,  
                     pid,      
-                    major    
+                    major,
+                    bio,
                 };
                 login(updatedUser); 
             }
@@ -136,18 +188,23 @@ export const ProfilePage = () => {
     const handleCancel = () => {
         setPID(user?.pid || "");
         setMajor(user?.major || "");
+        setBio(user?.bio || "")
         setEditMode(false);
     };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
+        const { name, value} = e.target;
         if (name === "pid") {
             setPID(value);
         } else if (name === "major") {
             setMajor(value);
         }
+        else if (name === "bio") {
+            setBio(value)
+        }
     };
 
+   
     return (
         <>
             <Navbar />
@@ -159,31 +216,44 @@ export const ProfilePage = () => {
                         <div className="profile-details">
                             {editMode ? (
                                 <>
-                                    <label>
-                                        <strong>PID:</strong>
-                                        <input
-                                            type="text"
-                                            value={pid}
-                                            name="pid"
-                                            onChange={handleInputChange}
-                                        />
-                                    </label>
-                                    <label>
-                                        <strong>Major:</strong>
-                                        <input
-                                            type="text"
-                                            value={major}
-                                            name="major"
-                                            onChange={handleInputChange}
-                                        />
-                                    </label>
+                                    <div className="input-container">
+                                        <label>
+                                            <strong>PID:</strong>
+                                            <input
+                                                type="text"
+                                                value={pid}
+                                                name="pid"
+                                                onChange={handleInputChange}
+                                            />
+                                        </label>
+                                        <label>
+                                            <strong>Major:</strong>
+                                            <input
+                                                type="text"
+                                                value={major}
+                                                name="major"
+                                                onChange={handleInputChange}
+                                            />
+                                        </label>
+
+                                        <label>
+                                            <strong>BIO:</strong>
+                                            <input
+                                                type="text"
+                                                value={bio}
+                                                name="bio"
+                                                onChange={handleInputChange}
+                                            />
+                                        </label>
+                                    </div>
+
                                     <button
                                         className="button red-button"
                                         onClick={handleChangePassword}
                                     >
-                                        Change Password 
+                                        Change Password
                                     </button>
-                                    
+
                                     <button
                                         className="button save-button"
                                         onClick={handleSave}
@@ -196,12 +266,18 @@ export const ProfilePage = () => {
                                     >
                                         Cancel
                                     </button>
-                                   
                                 </>
                             ) : (
                                 <>
-                                    <p><strong>PID:</strong> {user.pid}</p>
-                                    <p><strong>Major:</strong> {user.major}</p>
+                                    <p>
+                                        <strong>PID:</strong> {user.pid}
+                                    </p>
+                                    <p>
+                                        <strong>Major:</strong> {user.major}
+                                    </p>
+                                    <p>
+                                        <strong>BIO:</strong> {user.bio}
+                                    </p>
                                     <button
                                         className="button edit-button"
                                         onClick={handleEdit}
@@ -213,6 +289,13 @@ export const ProfilePage = () => {
                                         onClick={handleDeleteAccount}
                                     >
                                         Delete My Account
+                                    </button>
+                                    <button
+                                        className="delete-button"
+                                        onClick={handleViewEvents}
+                                        style={{ marginTop: '20px', backgroundColor:"blue"}}
+                                    >
+                                        View Signed Up Events
                                     </button>
                                 </>
                             )}

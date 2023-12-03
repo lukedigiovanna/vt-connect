@@ -11,6 +11,25 @@
     text-align: center;
     z-index: 10; /* to ensure it's above the background */
 }
+.event-card {
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+}
+
+.event-info {
+    padding: 10px;
+}
+
+
+
+.event-separator {
+    width: 1px;
+    height: 100%;
+    background-color: #ccc;
+    margin: 5px;
+}
+
 
 .profile-details {
     text-align: left;
