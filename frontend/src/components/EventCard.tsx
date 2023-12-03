@@ -49,9 +49,9 @@ export const EventCard = (props: { event: Event }) => {
             </p>
             <div className="flex w-full justify-between px-8">
                 <p>{props.event.description}</p>
-                {props.event.imageUrl && (
+                {"https://dbms-final.s3.us-east-2.amazonaws.com/" + props.event.imageUrl && (
                     <img
-                        src={props.event.imageUrl}
+                        src={"https://dbms-final.s3.us-east-2.amazonaws.com/" + props.event.imageUrl}
                         alt=""
                         className="w-32 self-end"
                     />

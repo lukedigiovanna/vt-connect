@@ -18,38 +18,15 @@ export const UploadImage: FC<UploadImageProps> = ({ onImageUpload }) => {
             reader.onload = async () => {
                 try {
                     const base64String = reader.result;
-                    const response = await apiPost("/saveImage", { image: base64String });
-                    const { imageUrl } = response.data;
-                    onImageUpload(imageUrl);
+                    const file_name = Math.random().toString(36).substring(2,7);
+                    const response = await apiPost("/saveImage", { image: base64String, file_name: file_name});
+                    onImageUpload(file_name);
                 } catch (err) {
                     console.error("Error uploading image:", err);
                 }
             };
         }
     };
-
-
-    // const handleFileChange = async (e: any) => {
-    //     e.preventDefault();
-    //     const file = e.target.files ? e.target.files[0] : null;
-    //     console.log(file)
-    //     if (file) {
-    //         const formData = new FormData();
-    //         formData.append('file', file);
-            
-    //         try {
-    //             const newEvent = (
-    //                 await apiPost("/saveImage", {
-    //                     formData
-    //                 })
-    //             ).data;
-    //             // const { imageUrl } = response.data;
-    //             // onImageUpload(imageUrl);
-    //         } catch (err) {
-    //             console.error("Error uploading image:", err);
-    //         }
-    //     }
-    // };
 
     return (
         <div>
