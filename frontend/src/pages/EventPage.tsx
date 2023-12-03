@@ -42,6 +42,15 @@ export const EventPage = () => {
             const response = await apiPost("/deleteEvent", { eventId: id });
 
             if (response.status === 200) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: 'The event was successfully deleted!',
+                    confirmButtonText: 'Close',
+                    showCloseButton: true,
+                });
+                
+            
                 navigate("/");
             }
             else {
@@ -77,21 +86,37 @@ export const EventPage = () => {
             try {
                 const response = await apiPost('/event-attendee', { userPid: user.pid, eventId: id });
                 if (response.status === 200) {
-                    alert('Successfully signed up for the event!');
+                    Swal.fire({
+                        icon: "success",
+                        title: "Success!",
+                        text: "Successfully Signed up For Event!",
+                        showConfirmButton: true,
+                    });
                 } else {
                     throw new Error(response.statusText);
                 }
             } catch (err: any) {
                 if (err.response && err.response.status === 400) {
                     const errorMessage = err.response.data.message;
-                    alert(errorMessage); 
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: `${errorMessage || 'Please try again.'}`,
+                    });
                 } else {
                     console.error(err);
-                    alert('Error signing up for the event.');
-                }
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Error Signing Up for Event!',
+                    });                }
             }
         } else {
-            alert('You must be signed in to sign up for an event.');
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'You Must Be Signed In To Sign Up for an Event!',
+            });
         }
     };
 
