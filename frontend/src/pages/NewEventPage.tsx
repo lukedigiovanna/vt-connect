@@ -48,17 +48,17 @@ export const NewEventPage = () => {
                     user
                 })
             ).data;
-            navigate("/");
+            //navigate("/");
         } catch (err) {
             console.log("error in creating a new event");
         }
     };
 
-    useEffect(() => {
-        if (!user) {
-            navigate("/");
-        }
-    }, [user, navigate]);
+    // useEffect(() => {
+    //     if (!user) {
+    //         navigate("/");
+    //     }
+    // }, [user, navigate]);
 
     return (
         <>
