@@ -35,30 +35,28 @@ export const NewEventPage = () => {
         setImageURL(url);
     };
 
-    const onSubmit = async (e: any) => {
+    const addEvent = async (e: any) => {
         e.preventDefault();
-        try {
-            const newEvent = (
-                await apiPost("/addEvent", {
-                    title, 
-                    description, 
-                    start, 
-                    end, 
-                    imageURL, 
-                    user
-                })
-            ).data;
-            navigate("/");
-        } catch (err) {
-            console.log("error in creating a new event");
+        console.log(imageURL)
+        if (imageURL != "") { 
+            try {
+                const newEvent = (
+                    await apiPost("/addEvent", {
+                        title, 
+                        description, 
+                        start, 
+                        end, 
+                        imageURL, 
+                        user
+                    })
+                ).data;
+                navigate("/");
+            } catch (err) {
+                console.log("error in creating a new event");
+            }
         }
+        console.log("you took an L")
     };
-
-    useEffect(() => {
-        if (!user) {
-            navigate("/");
-        }
-    }, [user, navigate]);
 
     return (
         <>
@@ -69,7 +67,7 @@ export const NewEventPage = () => {
                 <h1 className="font-bold text-2xl mb-2">
                     New Event
                 </h1>
-                <form onSubmit={onSubmit}>
+                <form onSubmit={addEvent}>
                     <input 
                         placeholder="title"
                         className="border px-3 py-1 rounded outline-gray-800 active:outline-1 mb-1"

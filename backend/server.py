@@ -10,6 +10,9 @@ import bcrypt
 import base64
 import io
 from functools import wraps
+import boto3
+from werkzeug.utils import secure_filename
+import traceback
 
 load_dotenv()
 
@@ -37,33 +40,11 @@ if db_pool.closed:
 
 print("Successfully connected to database!")
 
-# print("Connecting to S3 bucket")
-# aws_access_key, aws_secret_access_key = os.getenv("AWS_ACCESS_KEY"), os.getenv("AWS_SECRET_ACCESS_KEY")
-# s3 = boto3.client('s3', aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_access_key)
-
-# def upload_data_uri_to_s3(data_uri, file_name, bucket_name):
-#     # Splitting the data URI to extract header info and the actual data
-#     header, encoded = data_uri.split(",", 1)
-#     data = base64.b64decode(encoded)
-
-#     # Extracting file type from header (assuming it's in format "data:image/<file_type>;base64")
-#     file_type = header.split("/")[1].split(";")[0]
-
-#     # Create a file-like object from the decoded data URI
-#     image = io.BytesIO(data)
-
-#     # Upload to S3
-#     s3.upload_fileobj(image, bucket_name, file_name + '.' + file_type)
-
-#     url = f"https://{bucket_name}.s3.amazonaws.com/{file_name}.{file_type}"
-#     return url
-
 print("Setting up flask app...")
 app = Flask(__name__, static_folder="static")
-
+    
 # Enable CORS to allow requests from any origin
 CORS(app)
-
 
 def with_db_connection(f):
     @wraps(f)
@@ -80,8 +61,6 @@ def with_db_connection(f):
 """
 Returns the public HTML of the page
 """
-
-
 @app.route('/')
 def root():
     return send_from_directory(app.static_folder, "index.html")
@@ -102,8 +81,6 @@ def has_all_fields(object, fields, require_content=True):
 Returns a dictionary/JSON representation of the query results, which
 is useful for returning and processing the results on the frontend.
 """
-
-
 def get_formatted_query_results(cursor):
     results = cursor.fetchall()
     column_names = [desc[0] for desc in cursor.description]
@@ -126,8 +103,6 @@ def get_user(cursor, pid):
 """
 Checks if a user with the given PID already exists.
 """
-
-
 def user_exists(cursor, pid):
     cursor.execute(f"SELECT * FROM user_account WHERE pid='{pid}'")
     result = cursor.fetchall()
@@ -146,13 +121,10 @@ def get_admin_attrib(body):
     admin = body.get('admin')
     return bool(admin) if admin is not None else None
 
-
 """
 Takes in pid and major to update the major of an user based on 
 the passed in PID
 """
-
-
 @app.route('/api/update-user', methods=["POST"])
 @with_db_connection
 def update_user(conn, cursor):
@@ -224,8 +196,6 @@ def display_events_from_user(conn, cursor):
 """""
 Deletes event which only admins can do 
 """""
-
-
 @app.route("/api/deleteEvent", methods=['POST'])
 @with_db_connection
 def delete_event(conn, cursor):
@@ -248,8 +218,6 @@ def delete_event(conn, cursor):
 """
 Takes in the pid of a user and removes them from the database
 """
-
-
 @app.route('/api/deleteUser', methods=["POST"])
 @with_db_connection
 def delete_user(conn, cursor):
@@ -280,8 +248,6 @@ default values when necessary.
 
 Will return an error status if any fields are not given
 """
-
-
 @app.route('/api/signup', methods=["POST"])
 @with_db_connection
 def signup(conn, cursor):
@@ -298,9 +264,7 @@ def signup(conn, cursor):
     if user_exists(cursor, pid):
         print("Happening here ")
         return 'A user with that pid already exists', 400
-
-    # check for optional fields: major, bio, admin
-
+    
     major, bio, is_admin = get_optional_attrib(
         body, 'major'), get_optional_attrib(body, 'bio'), get_admin_attrib(body)
 
@@ -375,8 +339,6 @@ def signup_admin(conn, cursor):
 """
 Ability to change password 
 """
-
-
 @app.route("/api/change-password", methods=['POST'])
 @with_db_connection
 def change_password(conn, cursor):
@@ -413,8 +375,6 @@ def change_password(conn, cursor):
 """
 Gets a JSON array of all registered users
 """
-
-
 @app.route('/api/users', methods=["GET"])
 @with_db_connection
 def users(conn, cursor):
@@ -426,8 +386,6 @@ def users(conn, cursor):
 """
 Gets JSON of a given user's PID
 """
-
-
 @app.route('/api/user', methods=["GET"])
 @with_db_connection
 def user_with_id(conn, cursor):
@@ -445,8 +403,6 @@ def user_with_id(conn, cursor):
 """
 Gets a JSON array of the next events sorted by start time in ascending order (oldest first)
 """
-
-
 @app.route('/api/events', methods=["GET"])
 @with_db_connection
 def events(conn, cursor):
@@ -471,8 +427,6 @@ Example: /api/event?id=3uudiwo32093jfdalwo3io
 POST:
 creates an event with the given information
 """
-
-
 @app.route('/api/event', methods=["GET", "POST"])
 @with_db_connection
 def event(conn, cursor):
@@ -498,8 +452,6 @@ def event(conn, cursor):
 POST:
 Adding an event to the database that a user creates 
 '''
-
-
 @app.route('/api/addEvent', methods=["POST"])
 @with_db_connection
 def addEvent(conn, cursor):
@@ -596,8 +548,50 @@ def sign_up_for_event(conn, cursor):
         conn.rollback()
         return jsonify({'message': 'An error occurred while signing up for the event'}), 500
 
-# Safely close connections/resources when the server is shutdown for any reason
+@app.route('/api/saveImage', methods=["POST"])
+def saveImage(): 
+    try:
+        # Check if the post request has the image data
+        if 'image' not in request.json:
+            return jsonify({"error": "No image data"}), 400
 
+        image_data = request.json['image']
+        # Split the string to separate the metadata from the image data
+        header, encoded = image_data.split(",", 1)
+        # Decode the image data
+        decoded = base64.b64decode(encoded)
+
+        # Generate a filename (this should be more unique in a real application)
+        filename = request.json['file_name']  # You might want to generate this dynamically
+
+        # Upload to S3
+        s3 = boto3.client(
+            's3',
+            aws_access_key_id='AKIAX5FFWW5URC7YQ3UG',
+            aws_secret_access_key='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',
+            region_name='us-east-2'
+        )
+   
+        try:
+            s3.upload_fileobj(
+                io.BytesIO(decoded),
+                "dbms-final",
+                filename, 
+                ExtraArgs={'ACL': 'public-read'}
+            )
+        except Exception as e:
+            print("An error occurred during file upload.")
+            print(str(e))
+            print(traceback.format_exc()) 
+  
+        file_url = f'https://dbms-final.s3.amazonaws.com/{filename}'
+
+        return jsonify({"message": "File uploaded successfully", "file_url": file_url, "file_name":filename})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# Safely close connections/resources when the server is shutdown for any reason
 
 def shutdown():
     print("Flask is shutting down...")
