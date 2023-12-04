@@ -166,6 +166,24 @@ export const EventPage = () => {
         }
     };
 
+    const locationOptions = [
+        { id: 0, name: "McBryde Hall" },
+        { id: 1, name: "D2" },
+        { id: 2, name: "Torgersen Hall" },
+        { id: 3, name: "Squires Student Center" },
+        { id: 4, name: "Turner Place" },
+        { id: 5, name: "West Ambler Johnston Hall" },
+        { id: 6, name: "Slusher Hall" },
+        { id: 7, name: "Owens Food Court" },
+        { id: 8, name: "Drillfield" },
+        { id: 9, name: "Duck Pond" },
+    ];
+    
+    const getLocationNameById = (locationId: any) => {
+        const location = locationOptions.find(loc => loc.id === locationId);
+        return location ? location.name : "Unknown location";
+    };
+
     return (
         <div className="relative min-h-screen">
             <Background />
@@ -193,6 +211,10 @@ export const EventPage = () => {
                                         <strong>End Time:</strong> {new Date(event.endTime).toLocaleString()}
                                     </p>
                                 }
+                                <p className="mt-2">
+                                    <strong>Location: </strong>
+                                    <p> {getLocationNameById(event.locationId)} </p>
+                                </p>
                                 <p className="mt-2">
                                     <strong>Hosted By: </strong>
                                     <a href={`/user/${event.hostPid}`} className="text-blue-800 font-semibold hover:text-blue-400 active:text-red-300 transition"> {event.hostPid} </a>
