@@ -436,7 +436,7 @@ def event(conn, cursor):
         if event_id is None:
             return "Must specify an event id to query", 400
 
-        cursor.execute('SELECT * FROM event WHERE id=%s', (event_id))
+        cursor.execute('SELECT * FROM event WHERE id=%s', (event_id,))
         results = get_formatted_query_results(cursor)
         if len(results) == 0:
             return "No event found", 400
