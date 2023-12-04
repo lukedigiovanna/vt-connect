@@ -203,9 +203,9 @@ export const EventPage = () => {
                                 </p>
                             </div>
                             {
-                                event.imageUrl && (
+                                ("https://dbms-final.s3.us-east-2.amazonaws.com/" + event.imageUrl) && (
                                 <img
-                                    src={event.imageUrl}
+                                    src={"https://dbms-final.s3.us-east-2.amazonaws.com/" + (event.imageUrl)}
                                     alt=""
                                     className="w-64 self-end"
                                 />
