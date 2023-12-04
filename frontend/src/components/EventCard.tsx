@@ -16,7 +16,12 @@ const DateLine = (props: { date: Date }) => {
 };
 
 const TimeLine = (props: { date: Date }) => {
-    const hour = props.date.getHours();
+    let hour = props.date.getHours() + 5;
+
+    if (hour >= 24) {
+        hour -= 24;
+    }
+
     const meridiem = hour >= 12 ? "PM" : "AM";
     const timeHour = hour % 12 === 0 ? 12 : hour % 12;
     const minutes = String(props.date.getMinutes()).padStart(2, "0");

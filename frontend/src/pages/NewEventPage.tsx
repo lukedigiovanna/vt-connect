@@ -56,6 +56,7 @@ export const NewEventPage = () => {
         setImageURL(url);
     };
 
+
     const addEvent = async (e: any) => {
         e.preventDefault();
         console.log(imageURL)

@@ -203,11 +203,23 @@ export const EventPage = () => {
                                     {event.description}
                                 </p>
                                 <p>
-                                    <strong>Start Time:</strong> {new Date(event.startTime).toLocaleString()}
+                                <strong>Start Time:</strong> {
+                                    (() => {
+                                        const startTime = new Date(event.startTime);
+                                        startTime.setHours(startTime.getHours() + 5); // Add 5 hours
+                                        return startTime.toLocaleString();
+                                    })()
+                                }
                                 </p>
                                 {event.endTime &&
                                     <p>
-                                        <strong>End Time:</strong> {new Date(event.endTime).toLocaleString()}
+                                        <strong>End Time:</strong> {
+                                            (() => {
+                                                const endTime = new Date(event.endTime);
+                                                endTime.setHours(endTime.getHours() + 5); // Add 5 hours
+                                                return endTime.toLocaleString();
+                                            })()
+                                        }
                                     </p>
                                 }
                                 <p className="mt-2">
