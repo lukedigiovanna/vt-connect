@@ -18,7 +18,7 @@ load_dotenv()
 
 print("Connecting to database...")
 
-user, password = "rhbtxrau", "UEb8xzkihXobALYy_FVbOuP9OGmpIgGq"
+user, password = os.getenv("ELEPHANT_SQL_USERNAME"), os.getenv("ELEPHANT_SQL_PASSWORD")
 
 print(
     f'Loaded user, password: ({user}, {password[0:3] + "*" * (len(password) - 3)})')
@@ -435,7 +435,6 @@ def event(conn, cursor):
 
         if event_id is None:
             return "Must specify an event id to query", 400
-        
 
         cursor.execute('SELECT * FROM event WHERE id=%s', (event_id,))
         results = get_formatted_query_results(cursor)
