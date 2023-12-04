@@ -448,6 +448,40 @@ def event(conn, cursor):
         necessary_fields = ["title", "startTime", "hostId"]
 
 
+@app.route('/api/event_attendees', methods=['GET'])
+@with_db_connection
+def get_event_attendees(conn, cursor):
+    event_id = request.args.get('id')
+
+
+    if event_id is None: return "Must specify an event id to query", 400 
+
+    # check if user has already signed up for event 
+
+    user_pid = request.args.get('user_pid')
+
+
+    if user_pid is None: return "Must specify a user pid to query", 400 
+
+    try: 
+        cursor.execute('SELECT * FROM public.event_attendee WHERE event_id=%s',(event_id,))
+        results = get_formatted_query_results(cursor)
+
+       
+
+        number_of_attendees = len(results)
+        if str(user_pid) in str(results): 
+            return jsonify({"num_attendees": number_of_attendees, "user_signed_up": True}), 200 
+        else:
+            return jsonify({"num_attendees": number_of_attendees, "user_signed_up": False}), 200 
+
+            
+    except Exception as e: 
+        print("error " + str(e))
+        return jsonify({"message": "Error executing request"}), 500 
+
+
+
 '''
 POST:
 Adding an event to the database that a user creates 
@@ -466,13 +500,14 @@ def addEvent(conn, cursor):
         imageURL = body['imageURL']
         user = body['user']
 
+
         sql_query = """
     INSERT INTO event (title, description, start_time, end_time, image_url, host_pid, location_id) 
     VALUES (%s, %s, %s, %s, %s, %s, %s)"""
 
         # Execute the query with parameters from the request body
         cursor.execute(sql_query, (title, description,
-                       start, end, imageURL, "test", "0"))
+                       start, end, imageURL, user.get("pid"), "0"))
 
         # Commit the transaction to save changes
         conn.commit()
@@ -512,13 +547,33 @@ def admin_statistics(conn, cursor):
         print(str(e))
         return jsonify({'message': 'Error fetching statistics'}), 500
 
+@app.route('/api/remove-from-event', methods=['POST'])
+@with_db_connection
+def remove_from_event(conn, cursor):
+
+    
+    body = request.get_json() 
+
+    user_pid, event_id = body['user_pid'], body['event_id']
+
+    try:
+
+        cursor.execute('DELETE FROM event_attendee WHERE user_pid=%s AND event_id=%s', (user_pid, event_id))
+
+        conn.commit() 
+
+        return "Removed user from event", 200 
+
+
+    except Exception as e: 
+        return "Error executing query", 500 
+
 
 @app.route('/api/event-attendee', methods=['POST'])
 @with_db_connection
 def sign_up_for_event(conn, cursor):
     try:
         body = request.get_json()
-        print(body)
         user_pid = body['userPid']
         event_id = body['eventId']
 

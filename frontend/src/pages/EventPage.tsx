@@ -15,11 +15,15 @@ export const EventPage = () => {
     const [event, setEvent] = useState<Event | null>(null);
     const [status, setStatus] = useState<StatusType>("loading");
     const { user } = useUserAccount(); 
+    const [numberOfAttendees, setNumberofAttendees] = useState(0)
+    const [userAlreadySignedUp, setUserAlreadySignedUp] = useState(false)
 
     const cookies = useMemo(() => new Cookies(), []);
 
     const adminStatus = (cookies.get("admin_status"))
     const navigate = useNavigate();
+
+    const user_pid = cookies.get("pid")
 
     const deleteEvent = () => {
         Swal.fire({
@@ -35,6 +39,35 @@ export const EventPage = () => {
                 sendDeleteRequest();
             }
         });
+    }
+
+    const unregisterFromEvent = async() => {
+
+        try {
+
+            const response = await apiPost("/remove-from-event", {"user_pid": user_pid, "event_id": id})
+
+            if (response.status === 200) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: 'You successfully unregistered for this event!',
+                    confirmButtonText: 'Close',
+                    showCloseButton: true,
+                });
+            }
+
+        } catch (error) {
+
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: 'Oops, an invalid error occured, please try again later!',
+                confirmButtonText: 'Close',
+                showCloseButton: true,
+            });
+        }
+
     }
 
     const sendDeleteRequest = async() => {
@@ -74,6 +107,17 @@ export const EventPage = () => {
                 const result = await apiGet(`/event?id=${id}`);
                 setEvent(result.data);
                 setStatus("success");
+                const grab_event_attendee_info = await apiGet(`/event_attendees?id=${id}&user_pid=${user_pid}`)
+
+                console.log("grab event " + grab_event_attendee_info.data.num_attendees)
+                if (grab_event_attendee_info.data.user_signed_up) {
+                    setUserAlreadySignedUp(true)
+                    setNumberofAttendees(grab_event_attendee_info.data.num_attendees)
+                }
+                else {  
+                    setNumberofAttendees(grab_event_attendee_info.data.num_attendees)
+
+                }
             } catch (err) {
                 console.error(err);
                 setStatus("failure");
@@ -151,6 +195,10 @@ export const EventPage = () => {
                                     <strong>Hosted By: </strong>
                                     <a href={`/user/${event.hostPid}`} className="text-blue-800 font-semibold hover:text-blue-400 active:text-red-300 transition"> {event.hostPid} </a>
                                 </p>
+                                <p className="mt-2">
+                                    <strong>Number of Attendees: </strong>
+                                    {numberOfAttendees}
+                                </p>
                             </div>
                             {
                                 event.imageUrl && (
@@ -168,6 +216,14 @@ export const EventPage = () => {
                             className={`primary-button-colors mt-4 mr-2 px-4 py-2 rounded ${!user ? 'opacity-50 cursor-not-allowed' : ''}`}>
                             Sign Up for Event
                         </button>
+                        {userAlreadySignedUp && (
+                              <button
+                              onClick={unregisterFromEvent}
+                              className="primary-button-colors mt-4 px-4 py-2 rounded"
+                          >
+                              Unregister from Event 
+                          </button>
+                        )}
                         {adminStatus && (
                             <button
                                 onClick={deleteEvent}
