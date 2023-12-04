@@ -53,28 +53,32 @@ export const EventCard = (props: { event: Event }) => {
         <div className="rounded border border-black p-5 max-w-xl w-full mb-4 cursor-pointer bg-gray-100/75" onClick={() => {
             navigate(`/event/${props.event.id}`)
         }}>
-            <h1 className="font-bold text-xl">{props.event.title}</h1>
-            <h2>
-                <DateLine date={props.event.startTime} />
-                <br />
-                <TimeLine date={props.event.startTime} />
-                {props.event.endTime && (
-                    <>
-                        {" - "}
-                        <TimeLine date={props.event.endTime} />
-                    </>
-                )}
-            </h2>
-            <h3>{getLocationNameById(props.event.locationId)}</h3>
-            <div className="flex w-full justify-between px-8">
-                <p>{props.event.description}</p>
-                {"https://dbms-final.s3.us-east-2.amazonaws.com/" + props.event.imageUrl && (
-                    <img
-                        src={"https://dbms-final.s3.us-east-2.amazonaws.com/" + props.event.imageUrl}
-                        alt=""
-                        className="w-32 self-end"
-                    />
-                )}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <h1 className="font-bold text-xl">{props.event.title}</h1>
+                    <h2>
+                        <DateLine date={props.event.startTime} />
+                        <br />
+                        <TimeLine date={props.event.startTime} />
+                        {props.event.endTime && (
+                            <>
+                                {" - "}
+                                <TimeLine date={props.event.endTime} />
+                            </>
+                        )}
+                    </h2>
+                    <h3>{getLocationNameById(props.event.locationId)}</h3>
+                    <p>{props.event.description}</p>
+                </div>
+                <div className="flex justify-center items-center">
+                    {props.event.imageUrl && (
+                        <img
+                            src={"https://dbms-final.s3.us-east-2.amazonaws.com/" + props.event.imageUrl}
+                            alt={props.event.title}
+                            className="w-32 h-auto md:w-48 md:h-auto self-end"
+                        />
+                    )}
+                </div>
             </div>
         </div>
     );
