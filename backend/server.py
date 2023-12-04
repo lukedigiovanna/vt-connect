@@ -204,8 +204,8 @@ def delete_event(conn, cursor):
         event_id = body['eventId']
 
         cursor.execute(
-            "DELETE FROM event_attendee WHERE event_id=%s", event_id)
-        cursor.execute("DELETE FROM event WHERE id=%s", event_id)
+            "DELETE FROM event_attendee WHERE event_id=%s", (event_id,))
+        cursor.execute("DELETE FROM event WHERE id=%s", (event_id,))
 
         conn.commit()
 

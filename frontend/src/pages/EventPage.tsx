@@ -55,6 +55,8 @@ export const EventPage = () => {
                     confirmButtonText: 'Close',
                     showCloseButton: true,
                 });
+
+                navigate("/")
             }
 
         } catch (error) {
@@ -210,28 +212,36 @@ export const EventPage = () => {
                             )}
                         </div>
                         
-                        <button
-                            onClick={signUpForEvent}
-                            disabled={!user}
-                            className={`primary-button-colors mt-4 mr-2 px-4 py-2 rounded ${!user ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                            Sign Up for Event
-                        </button>
-                        {userAlreadySignedUp && (
-                              <button
-                              onClick={unregisterFromEvent}
-                              className="primary-button-colors mt-4 px-4 py-2 rounded"
-                          >
-                              Unregister from Event 
-                          </button>
-                        )}
-                        {adminStatus && (
-                            <button
-                                onClick={deleteEvent}
-                                className="primary-button-colors mt-4 px-4 py-2 rounded"
-                            >
-                                Remove Event
-                            </button>
-                        )}
+
+<div>
+    <button
+        onClick={signUpForEvent}
+        disabled={!user}
+        className={`primary-button-colors mt-4 mr-2 px-4 py-2 rounded ${!user ? 'opacity-50 cursor-not-allowed' : ''}`}>
+        Sign Up for Event
+    </button>
+
+    {userAlreadySignedUp && (
+        <button
+            onClick={unregisterFromEvent}
+            className="primary-button-colors mt-4 px-4 py-2 rounded"
+        >
+            Unregister from Event
+        </button>
+    )}
+</div>
+
+{adminStatus && (
+    <div>
+        <button
+            onClick={deleteEvent}
+            className="primary-button-colors mt-4 px-4 py-2 rounded"
+        >
+            Remove Event
+        </button>
+    </div>
+)}
+
 
                     </div>
                 }
