@@ -30,7 +30,7 @@ CREATE TABLE event (
     description VARCHAR(1000),
     image_url VARCHAR(1000),
     host_pid VARCHAR(250),
-    location_id INT REFERENCES location(id),
+    location_id VARCHAR(250),
 
     PRIMARY KEY (id)
 );

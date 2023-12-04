@@ -499,6 +499,7 @@ def addEvent(conn, cursor):
         end = body['end']
         imageURL = body['imageURL']
         user = body['user']
+        location_id = body['locationId']
 
 
         sql_query = """
@@ -507,7 +508,7 @@ def addEvent(conn, cursor):
 
         # Execute the query with parameters from the request body
         cursor.execute(sql_query, (title, description,
-                       start, end, imageURL, user.get("pid"), "0"))
+                       start, end, imageURL, user.get("pid"), location_id))
 
         # Commit the transaction to save changes
         conn.commit()

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState} from "react";
 import { useNavigate } from "react-router-dom";
 import { Background } from "../components/Background";
 import { Navbar } from "../components/Navbar";
@@ -14,7 +14,28 @@ export const NewEventPage = () => {
     const [start, setStart] = useState("");
     const [end, setEnd] = useState("");
     const [imageURL, setImageURL] = useState("");
+    const [locationId, setLocationId] = useState<number | null>(null);
 
+    const locationOptions = [
+        { id: 0, name: "McBryde Hall" },
+        { id: 1, name: "D2" },
+        { id: 2, name: "Torgersen Hall" },
+        { id: 3, name: "Squires Student Center" },
+        { id: 4, name: "Turner Place" },
+        { id: 5, name: "West Ambler Johnston Hall" },
+        { id: 6, name: "Slusher Hall" },
+        { id: 7, name: "Owens Food Court" },
+        { id: 8, name: "Drillfield" },
+        { id: 9, name: "Duck Pond" },
+    ];
+    
+
+    const handleLocationChange = (e:any) => {
+        // Assuming the value of each option is the location ID
+        setLocationId(parseInt(e.target.value, 10));
+        console.log(locationId)
+    };
+    
     const handleTitleChange = (e: any) => {
         setTitle(e.target.value);
     };
@@ -38,7 +59,7 @@ export const NewEventPage = () => {
     const addEvent = async (e: any) => {
         e.preventDefault();
         console.log(imageURL)
-        if (imageURL != "") { 
+        if (imageURL !== "") { 
             try {
                 const newEvent = (
                     await apiPost("/addEvent", {
@@ -47,7 +68,8 @@ export const NewEventPage = () => {
                         start, 
                         end, 
                         imageURL, 
-                        user
+                        user, 
+                        locationId
                     })
                 ).data;
                 navigate("/");
@@ -74,7 +96,7 @@ export const NewEventPage = () => {
                         value={title}
                         onChange={handleTitleChange}
                     />
-                    <textarea 
+                    <input 
                         placeholder="description"
                         className="border px-3 py-1 rounded outline-gray-800 mb-1"
                         value={description}
@@ -95,7 +117,17 @@ export const NewEventPage = () => {
                             onChange={handleEndChange}
                         />
                     </div>
-                    <div>
+                    <div className="flex">
+                        <select 
+                            className="border px-3 py-1 rounded outline-gray-800 active:outline-1 mb-1"
+                            value={locationId !== null ? locationId : ''}
+                            onChange={handleLocationChange}
+                        >
+                            {locationOptions.map((location) => (
+                                <option key={location.id} value={location.id}>{location.name}</option>
+                            ))}
+                        </select>
+
                         <UploadImage onImageUpload={handleImageChange} />
                     </div>
                     <div className="flex justify-end">

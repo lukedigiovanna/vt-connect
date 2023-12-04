@@ -28,6 +28,24 @@ const TimeLine = (props: { date: Date }) => {
     );
 };
 
+const locationOptions = [
+    { id: 0, name: "McBryde Hall" },
+    { id: 1, name: "D2" },
+    { id: 2, name: "Torgersen Hall" },
+    { id: 3, name: "Squires Student Center" },
+    { id: 4, name: "Turner Place" },
+    { id: 5, name: "West Ambler Johnston Hall" },
+    { id: 6, name: "Slusher Hall" },
+    { id: 7, name: "Owens Food Court" },
+    { id: 8, name: "Drillfield" },
+    { id: 9, name: "Duck Pond" },
+];
+
+const getLocationNameById = (locationId: any) => {
+    const location = locationOptions.find(loc => loc.id === locationId);
+    return location ? location.name : "Unknown location";
+};
+
 export const EventCard = (props: { event: Event }) => {
     const navigate = useNavigate();
 
@@ -36,7 +54,7 @@ export const EventCard = (props: { event: Event }) => {
             navigate(`/event/${props.event.id}`)
         }}>
             <h1 className="font-bold text-xl">{props.event.title}</h1>
-            <p>
+            <h2>
                 <DateLine date={props.event.startTime} />
                 <br />
                 <TimeLine date={props.event.startTime} />
@@ -46,7 +64,8 @@ export const EventCard = (props: { event: Event }) => {
                         <TimeLine date={props.event.endTime} />
                     </>
                 )}
-            </p>
+            </h2>
+            <h3>{getLocationNameById(props.event.locationId)}</h3>
             <div className="flex w-full justify-between px-8">
                 <p>{props.event.description}</p>
                 {"https://dbms-final.s3.us-east-2.amazonaws.com/" + props.event.imageUrl && (
