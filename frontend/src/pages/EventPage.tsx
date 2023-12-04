@@ -190,31 +190,26 @@ export const EventPage = () => {
             <Navbar />
             <div className="pt-16">
                 {
-                    status === "loading" && 
+                    status === "loading" &&
                     <p className="text-center">Loading...</p>
                 }
                 {
                     status === "success" && event &&
-                    <div className="mx-auto max-w-4xl bg-white/80 rounded shadow-lg p-6 mt-6">
+                    <div className="mx-auto max-w-4xl bg-white/80 rounded shadow-lg p-6 mt-6 space-y-4">
                         <h1 className="text-3xl font-bold mb-2">{event.title}</h1>
-                        <div className="flex flex-row">
-                            <div>
+                        <div className="flex flex-col lg:flex-row lg:space-x-4">
+                            <div className="flex-1">
                                 <p className="mb-4">
                                     {event.description}
                                 </p>
                                 <p>
                                     <strong>Start Time:</strong> {new Date(event.startTime).toLocaleString()}
                                 </p>
-                                {
-                                    event.endTime && 
+                                {event.endTime &&
                                     <p>
                                         <strong>End Time:</strong> {new Date(event.endTime).toLocaleString()}
                                     </p>
                                 }
-                                <p className="mt-2">
-                                    <strong>Location: </strong>
-                                    <p> {getLocationNameById(event.locationId)} </p>
-                                </p>
                                 <p className="mt-2">
                                     <strong>Hosted By: </strong>
                                     <a href={`/user/${event.hostPid}`} className="text-blue-800 font-semibold hover:text-blue-400 active:text-red-300 transition"> {event.hostPid} </a>
@@ -224,54 +219,47 @@ export const EventPage = () => {
                                     {numberOfAttendees}
                                 </p>
                             </div>
-                            {
-                                ("https://dbms-final.s3.us-east-2.amazonaws.com/" + event.imageUrl) && (
+                            {event.imageUrl && (
                                 <img
-                                    src={"https://dbms-final.s3.us-east-2.amazonaws.com/" + (event.imageUrl)}
-                                    alt=""
-                                    className="w-64 self-end"
+                                    src={"https://dbms-final.s3.us-east-2.amazonaws.com/" + event.imageUrl}
+                                    alt="Event"
+                                    className="w-64 lg:w-96 self-end mt-4 lg:mt-0"
                                 />
                             )}
                         </div>
-                        
-
-<div>
-    <button
-        onClick={signUpForEvent}
-        disabled={!user}
-        className={`primary-button-colors mt-4 mr-2 px-4 py-2 rounded ${!user ? 'opacity-50 cursor-not-allowed' : ''}`}>
-        Sign Up for Event
-    </button>
-
-    {userAlreadySignedUp && (
-        <button
-            onClick={unregisterFromEvent}
-            className="primary-button-colors mt-4 px-4 py-2 rounded"
-        >
-            Unregister from Event
-        </button>
-    )}
-</div>
-
-{adminStatus && (
-    <div>
-        <button
-            onClick={deleteEvent}
-            className="primary-button-colors mt-4 px-4 py-2 rounded"
-        >
-            Remove Event
-        </button>
-    </div>
-)}
-
-
+                        <div className="flex flex-col space-y-2">
+                            <button
+                                onClick={signUpForEvent}
+                                disabled={!user}
+                                className={`primary-button-colors px-4 py-2 rounded ${!user ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                                Sign Up for Event
+                            </button>
+    
+                            {userAlreadySignedUp && (
+                                <button
+                                    onClick={unregisterFromEvent}
+                                    className="primary-button-colors px-4 py-2 rounded"
+                                >
+                                    Unregister from Event
+                                </button>
+                            )}
+    
+                            {adminStatus && (
+                                <button
+                                    onClick={deleteEvent}
+                                    className="primary-button-colors px-4 py-2 rounded"
+                                >
+                                    Remove Event
+                                </button>
+                            )}
+                        </div>
                     </div>
                 }
                 {
-                    status === "failure" && 
+                    status === "failure" &&
                     <p className="text-center mt-6">No event found or something went wrong.</p>
                 }
             </div>
         </div>
-    );
+    );    
 };
